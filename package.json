@@ -1,0 +1,25 @@
+{
+    "name": "gfdb-site",
+    "version": "1.0.0",
+    "main": "server.js",
+    "scripts": {
+        "start": "nodemon server.js"
+    },
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/gfdb/gfdb-site.git"
+    },
+    "keywords": [],
+    "author": "",
+    "license": "ISC",
+    "bugs": {
+        "url": "https://github.com/gfdb/gfdb-site/issues"
+    },
+    "homepage": "https://github.com/gfdb/gfdb-site#readme",
+    "dependencies": {
+    },
+    "devDependencies": {
+        "nodemon": "^2.0.15"
+    }
+
+}
