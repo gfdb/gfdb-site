@@ -3,7 +3,11 @@
     "version": "1.0.0",
     "main": "server.js",
     "scripts": {
-        "start": "nodemon server.js"
+        "frontend-install": "npm install --prefix gfdb-frontend",
+        "start": "node server.js",
+        "server": "nodemon server.js",
+        "gfdb-frontend": "npm start --prefix gfdb-frontend",
+        "dev": "concurrently \"npm run server\" \"npm run gfdb-frontend\""
     },
     "repository": {
         "type": "git",
@@ -11,15 +15,17 @@
     },
     "keywords": [],
     "author": "",
-    "license": "ISC",
+    "license": "GPL 2",
     "bugs": {
         "url": "https://github.com/gfdb/gfdb-site/issues"
     },
     "homepage": "https://github.com/gfdb/gfdb-site#readme",
     "dependencies": {
+        "concurrently": "^7.0.0",
+        "express": "^4.17.3",
+        "package.json": "^2.0.1"
     },
     "devDependencies": {
         "nodemon": "^2.0.15"
     }
-
 }
