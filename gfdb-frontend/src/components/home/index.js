@@ -1,8 +1,8 @@
 import './home.css';
-import Engine from '../engine'
+import Comp from '../engine'
 
 function Home() {
-  return (<Engine />);
+  return (<Comp />);
 }
 
 export default Home;

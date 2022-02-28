@@ -1,149 +1,289 @@
-import React, { useState, useEffect } from "react";
-import styles from './engine.module.scss'
-import penguin from '../penguins/small/penguin_walk01.png'
-import { useEvent } from '../../hooks';
+import React, { useEffect, useState, useRef } from 'react'
+import Matter from 'matter-js'
+import { use_event } from '../hooks';
 
-function CreateEngine(setState) {
-    this.settings = {
-      tile: 2, // width of one tile
-    };
-  
-    // current char position
-    this.character = 0;
-    this.jump = false;
-    this.direction = 'up';
-    this.positionx = 0;
-    this.positiony = 0;
-    this.max = this.settings.tile * 25;
+const STATIC_DENSITY = 15
+const PARTICLE_SIZE = 6
+const CHARACTER_BOUNCYNESS = 0.5
 
-    const doJump = () => {
-        console.log(this.positiony)
-        // if not jumping
-        if (!this.jump) {
-            this.positiony = 0;
-            this.direction = 'up';
-            return;
-        }
+// urls have to be preloaded for some reason in matterjs
+// so thats what this is used for
+const loadImage = (url, onSuccess) => {
+  const img = new Image();
+  img.onload = () => {
+    onSuccess(img.src);
+  };
+  img.src = url;
+};
 
-        // if finished jumping, reset and return
-        if (this.direction === 'down' && this.positiony <= 0) {
-            this.jump = false;
-            this.positiony = 0;
-            this.direction = 'up';
-            return;
-        }
+export default function Comp() {
 
-        // if max height
-        if (this.positiony >= this.max) this.direction = 'down';
+  const boxRef = useRef(null)
+  const canvasRef = useRef(null)
 
-        // depending on the direction increment the jump.
-        if (this.direction === 'up') {
-            this.positiony += this.settings.tile;
-        } else {
-            this.positiony -= this.settings.tile;
-        }
+  const [constraints, setContraints] = useState()
+  const [scene, setScene] = useState()
 
-    };
-  
-    // function that will be continuously ran
-    this.repaint = () => {
-      // move the character by one tile
-    //   this.positiony += this.settings.tile;
+  const [someStateValue, setSomeStateValue] = useState(false)
 
-      // check for jump and do it
-      doJump();
-  
-      // set state for use in the component
-      setState({ positionx: this.positionx , positiony: this.positiony });
-  
-      // start repaint on next frame
-      return requestAnimationFrame(this.repaint);
-    };
-  
-    // trigger initial paint
-    this.repaint();
-    return () => ({
-        jump: () => {
-            // if jump is not active trigger jump
-            if (!this.jump) {
-                this.jump = true;
-            }
-        }
-    });
+  const [character_movement, setCharacterMovement] = useState('none')
+  const [character_velocity, setCharacterVelocity] = useState(0)
+
+  const [spawn_character, spawnCharacter] = useState(true)
+
+  const [update_sprite, updateSprite] = useState(false)
+
+  const handleResize = () => {
+    setContraints(boxRef.current.getBoundingClientRect())
   }
 
+  const handleClick = () => {
+    setSomeStateValue(!someStateValue)
+  }
 
-function Engine() {
+  const handleKeyPress = (e) => {
 
-    // game state
-    const [gameState, setGameState] = useState({ character: 0 });
-
-    // trigger game to start
-    const [start, setStart] = useState(false);
-
-    // if game is running
-    const [started, setStarted] = useState(false);
-
-    // instance of game engine
-    const [engine, setEngine] = useState(null);
-
-    const handleKeyPress = (e) => {
-
-        if (e.key === ' ' || e.key === 'ArrowUp') {
-            if (!started && !start ) {
-                setStart(true);
-                return;
-            }
-            engine.jump();
-            console.log('jumped')
-
-        }
-
-        if (e.key === 'ArrowRight' ){
-            console.log('you pressed right')
-        }
-
-        if (e.key === 'ArrowDown' ){
-            console.log('you pressed down')
-        }
-
-        if (e.key === 'ArrowLeft' ){
-            console.log('you pressed left')
-        }
-
-
-
-
-    };
-
-    useEvent('keydown', handleKeyPress);
-
-    useEffect(() => {
-        if (start) {
-            setStarted(true);
-            setStart(false);
-            // create new engine and save it to the state to use
-            setEngine(
-                new CreateEngine(
-                    state => setGameState(state),
-                )
-            );
-        }
+    if (e.key === ' ' || e.key === 'ArrowUp') {
+      setCharacterMovement('up')
+      console.log('jumped')
     }
-    );
 
-    return(
+    if (e.key === 'ArrowRight' ){
+      setCharacterMovement('right')
+      console.log('you pressed right')
+    }
+
+    if (e.key === 'ArrowDown'){
+      setCharacterMovement('down')
+      console.log('you pressed down')
+    }
+
+    if (e.key === 'ArrowLeft' ){
+      setCharacterMovement('left')
+      console.log('you pressed left')
+    }
+  };
+
+  use_event('keydown', handleKeyPress);
+
+  useEffect(() => {
+    if (scene) {
+      console.log(scene.engine.world.bodies[1].position)
+      // console.log(constraints.width)
+      // console.log('here')
+      // console.log(scene.engine.world.bodies[1])
+
+      if (scene && scene.engine.world.bodies[1] && constraints) {
+        if (scene.engine.world.bodies[1].position.x > constraints.width)
+          Matter.Body.setPosition(
+            scene.engine.world.bodies[1],
+            {x: 10, y: scene.engine.world.bodies[1].position.y}
+          )
+        if (scene.engine.world.bodies[1].position.x < 0)
+          Matter.Body.setPosition(
+            scene.engine.world.bodies[1],
+            {x: constraints.width, y: scene.engine.world.bodies[1].position.y}
+          )
+      }
+      if(character_movement.localeCompare('right') === 0) {
+        Matter.Body.applyForce(
+          scene.engine.world.bodies[1],
+          scene.engine.world.bodies[1].position,
+          Matter.Vector.create(0.001, 0)
+        )
+      }
+
+      if(character_movement.localeCompare('left') === 0) {
+        Matter.Body.applyForce(
+          scene.engine.world.bodies[1],
+          scene.engine.world.bodies[1].position,
+          Matter.Vector.create(-0.001, 0)
+        )
+      }
+
+      if(character_movement.localeCompare('up') === 0) {
+        Matter.Body.applyForce(
+          scene.engine.world.bodies[1],
+          scene.engine.world.bodies[1].position,
+          Matter.Vector.create(0, 0.03),
+        )
+      }
+      setCharacterMovement('static')
+    }
+
+  }, [character_movement])
+
+  useEffect(() => {
+    let Engine = Matter.Engine
+    let Render = Matter.Render
+    let World = Matter.World
+    let Bodies = Matter.Bodies
+
+    let engine = Engine.create({})
+
+    let render = Render.create({
+      element: boxRef.current,
+      engine: engine,
+      canvas: canvasRef.current,
+      options: {
+        background: 'transparent',
+        wireframes: false,
+      },
+    })
+
+    const floor = Bodies.rectangle(0, 100, 0, STATIC_DENSITY, {
+      isStatic: true,
+      friction: 0,
+      render: {
+        fillStyle: 'blue',
+      },
+    })
+
+    World.add(engine.world, [floor])
+
+    Matter.Runner.run(engine)
+    Render.run(render)
+
+    setContraints(boxRef.current.getBoundingClientRect())
+    setScene(render)
+
+    window.addEventListener('resize', handleResize)
+
+    
+  }, [])
+
+  // useEffect(() => {
+    
+  // }, [character])
+
+  useEffect(() => {
+    return () => {
+      window.removeEventListener('resize', handleResize)
+    }
+  }, [])
+
+  useEffect(() => {
+    if (constraints) {
+      let { width, height } = constraints
+
+      // Dynamically update canvas and bounds
+      scene.bounds.max.x = width
+      scene.bounds.max.y = height
+      scene.options.width = width
+      scene.options.height = height
+      scene.canvas.width = width
+      scene.canvas.height = height
+
+      // Dynamically update floor
+      const floor = scene.engine.world.bodies[0]
+
+      Matter.Body.setPosition(floor, {
+        x: width / 2,
+        y: height + STATIC_DENSITY / 2,
+      })
+
+      console.log('width: ' + width)
+      console.log('height: ' + height)
+      Matter.Body.setVertices(floor, [
+        { x: 0, y: height },
+        { x: width*2, y: height},
+        { x: width*2, y: height + STATIC_DENSITY },
+        { x: 0, y: height + STATIC_DENSITY },
+      ])
+
+      // spawn character into the game
+      if (spawn_character) {
+        spawnCharacter(false)
+      }
+    }
+  }, [scene, constraints])
+
+  useEffect(() => {
+    // Add character to the game
+    if (scene) {
+      loadImage(
+        "/penguin/penguin_walk01.png",
+        url => {
+          console.log("Success");
+          let { width } = constraints
+          let randomX = Math.floor(Math.random() * -width) + width
+          Matter.World.add(
+            scene.engine.world,
+            Matter.Bodies.rectangle(randomX, 0, 25, 25,
+              {
+                friction: 0,
+                render: {
+                  sprite: {
+                    texture: url,
+                    xScale: 0.4,
+                    yScale: 0.4
+                  }
+                }
+              }
+            )
+          )
+        }
+      );
+
+      // if (scene.engine.world.bodies[1])
+    }
+  }, [spawn_character])
+
+  // useEffect(() => {
+    
+  // }, [character_velocity])
+
+  return (
     <div
-      className={styles.container}
+      style={{
+        position: 'relative',
+        border: '1px solid white',
+        padding: '8px',
+      }}
     >
-      <img src = {penguin} alt='penguin'
-        className={styles.character}
-        style = {{
-            transform: `translate(${gameState.positionx}px, -${gameState.positiony}px)`, // move char in opposite direction
+      {/* <div style={{ textAlign: 'center' }}>Checkout</div> */}
+      <div
+        style={{
+          display: 'grid',
+          gridTemplateColumns: '1fr auto',
+          rowGap: '16px',
+          marginBottom: '32px',
         }}
-      />
-    </div>
-    )
-}
+      >
+        {/* <div>SubTitle</div>
+        <div>£xxx</div>
+        <div>Discount</div>
+        <div>£xxx</div>
+        <div>Total</div>
+        <div>£xxx</div> */}
+      </div>
 
-export default Engine;
+      {/* <button
+        style={{
+          cursor: 'pointer',
+          display: 'block',
+          textAlign: 'center',
+          marginBottom: '16px',
+          width: '100%',
+        }}
+        onClick={() => handleClick()}
+      >
+        Checkout
+      </button> */}
+
+      <div
+        ref={boxRef}
+        style={{
+          position: 'absolute',
+          top: 0,
+          left: 0,
+          width: '100%',
+          height: '100%',
+          pointerEvents: 'none',
+        }}
+      >
+        <canvas ref={canvasRef} />
+      </div>
+    </div>
+  )
+}
