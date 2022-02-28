@@ -73,7 +73,18 @@ export default function Comp() {
       // console.log('here')
       // console.log(scene.engine.world.bodies[1])
 
-      
+      if (scene && scene.engine.world.bodies[1] && constraints) {
+        if (scene.engine.world.bodies[1].position.x > constraints.width)
+          Matter.Body.setPosition(
+            scene.engine.world.bodies[1],
+            {x: 10, y: scene.engine.world.bodies[1].position.y}
+          )
+        if (scene.engine.world.bodies[1].position.x < 0)
+          Matter.Body.setPosition(
+            scene.engine.world.bodies[1],
+            {x: constraints.width, y: scene.engine.world.bodies[1].position.y}
+          )
+      }
       if(character_movement.localeCompare('right') === 0) {
         Matter.Body.applyForce(
           scene.engine.world.bodies[1],
@@ -137,6 +148,8 @@ export default function Comp() {
     setScene(render)
 
     window.addEventListener('resize', handleResize)
+
+    
   }, [])
 
   // useEffect(() => {
@@ -163,8 +176,6 @@ export default function Comp() {
 
       // Dynamically update floor
       const floor = scene.engine.world.bodies[0]
-
-      console.log('height' + height)
 
       Matter.Body.setPosition(floor, {
         x: width / 2,
