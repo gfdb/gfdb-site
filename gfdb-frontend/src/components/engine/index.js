@@ -27,8 +27,11 @@ export default function Comp() {
   const [someStateValue, setSomeStateValue] = useState(false)
 
   const [character_movement, setCharacterMovement] = useState('none')
+  const [character_velocity, setCharacterVelocity] = useState(0)
 
   const [spawn_character, spawnCharacter] = useState(true)
+
+  const [update_sprite, updateSprite] = useState(false)
 
   const handleResize = () => {
     setContraints(boxRef.current.getBoundingClientRect())
@@ -51,31 +54,31 @@ export default function Comp() {
     }
 
     if (e.key === 'ArrowDown'){
-      setCharacterMovement('left')
+      setCharacterMovement('down')
       console.log('you pressed down')
     }
 
     if (e.key === 'ArrowLeft' ){
-      setCharacterMovement('down')
+      setCharacterMovement('left')
       console.log('you pressed left')
     }
-
-
-
-
   };
 
   use_event('keydown', handleKeyPress);
 
   useEffect(() => {
     if (scene) {
+      console.log(scene.engine.world.bodies[1].position)
+      // console.log(constraints.width)
       // console.log('here')
       // console.log(scene.engine.world.bodies[1])
+
+      
       if(character_movement.localeCompare('right') === 0) {
         Matter.Body.applyForce(
           scene.engine.world.bodies[1],
           scene.engine.world.bodies[1].position,
-          Matter.Vector.create(0.008, 0)
+          Matter.Vector.create(0.001, 0)
         )
       }
 
@@ -83,7 +86,7 @@ export default function Comp() {
         Matter.Body.applyForce(
           scene.engine.world.bodies[1],
           scene.engine.world.bodies[1].position,
-          Matter.Vector.create(-1, 0)
+          Matter.Vector.create(-0.001, 0)
         )
       }
 
@@ -161,15 +164,19 @@ export default function Comp() {
       // Dynamically update floor
       const floor = scene.engine.world.bodies[0]
 
+      console.log('height' + height)
+
       Matter.Body.setPosition(floor, {
         x: width / 2,
         y: height + STATIC_DENSITY / 2,
       })
 
+      console.log('width: ' + width)
+      console.log('height: ' + height)
       Matter.Body.setVertices(floor, [
         { x: 0, y: height },
-        { x: width, y: height},
-        { x: width, y: height + STATIC_DENSITY },
+        { x: width*2, y: height},
+        { x: width*2, y: height + STATIC_DENSITY },
         { x: 0, y: height + STATIC_DENSITY },
       ])
 
@@ -193,7 +200,7 @@ export default function Comp() {
             scene.engine.world,
             Matter.Bodies.rectangle(randomX, 0, 25, 25,
               {
-                restitution: CHARACTER_BOUNCYNESS,
+                friction: 0,
                 render: {
                   sprite: {
                     texture: url,
@@ -206,8 +213,14 @@ export default function Comp() {
           )
         }
       );
+
+      // if (scene.engine.world.bodies[1])
     }
   }, [spawn_character])
+
+  // useEffect(() => {
+    
+  // }, [character_velocity])
 
   return (
     <div
