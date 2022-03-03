@@ -1,13 +1,11 @@
 import React, { useEffect, useState, useRef } from 'react'
-import Matter from 'matter-js'
+import Matter, { use } from 'matter-js'
 import { use_event } from '../hooks';
 
 const STATIC_DENSITY = 15
 const PARTICLE_SIZE = 6
-const CHARACTER_BOUNCYNESS = 0.5
 
-// urls have to be preloaded for some reason in matterjs
-// so thats what this is used for
+// urls have to be preloaded in matterjs
 const loadImage = (url, onSuccess) => {
   const img = new Image();
   img.onload = () => {
@@ -31,7 +29,9 @@ export default function Comp() {
 
   const [spawn_character, spawnCharacter] = useState(true)
 
-  const [update_sprite, updateSprite] = useState(false)
+  const [update_sprite, updateSprite] = useState(true)
+
+  // const [update_sprqite, updateSprite] = useState(false)
 
   const handleResize = () => {
     setContraints(boxRef.current.getBoundingClientRect())
@@ -68,45 +68,50 @@ export default function Comp() {
 
   useEffect(() => {
     if (scene) {
-      console.log(scene.engine.world.bodies[1].position)
-      // console.log(constraints.width)
-      // console.log('here')
-      // console.log(scene.engine.world.bodies[1])
 
-      if (scene && scene.engine.world.bodies[1] && constraints) {
-        if (scene.engine.world.bodies[1].position.x > constraints.width)
+      let penguin = scene.engine.world.bodies[1]
+      let floor = scene.engine.world.bodies[0]
+
+      if (scene && penguin && constraints) {
+        if (penguin.position.x > constraints.width)
           Matter.Body.setPosition(
-            scene.engine.world.bodies[1],
-            {x: 10, y: scene.engine.world.bodies[1].position.y}
+            penguin,
+            {x: 10, y: penguin.position.y}
           )
-        if (scene.engine.world.bodies[1].position.x < 0)
+        if (penguin.position.x < 0)
           Matter.Body.setPosition(
-            scene.engine.world.bodies[1],
-            {x: constraints.width, y: scene.engine.world.bodies[1].position.y}
+            penguin,
+            {x: constraints.width, y: penguin.position.y}
           )
       }
       if(character_movement.localeCompare('right') === 0) {
         Matter.Body.applyForce(
-          scene.engine.world.bodies[1],
-          scene.engine.world.bodies[1].position,
+          penguin,
+          penguin.position,
           Matter.Vector.create(0.001, 0)
         )
       }
 
       if(character_movement.localeCompare('left') === 0) {
         Matter.Body.applyForce(
-          scene.engine.world.bodies[1],
-          scene.engine.world.bodies[1].position,
+          penguin,
+          penguin.position,
           Matter.Vector.create(-0.001, 0)
         )
       }
 
       if(character_movement.localeCompare('up') === 0) {
-        Matter.Body.applyForce(
-          scene.engine.world.bodies[1],
-          scene.engine.world.bodies[1].position,
-          Matter.Vector.create(0, 0.03),
-        )
+        // console.log(floor.position.y)
+        console.log(floor)
+        console.log(penguin)
+        // console.log(Matter.Collision.collides(penguin, floor).collided)
+        // check to make sure they are not already jumping
+        if (Matter.Collision.collides(penguin, floor) != null)
+          Matter.Body.applyForce(
+            scene.engine.world.bodies[1],
+            scene.engine.world.bodies[1].position,
+            Matter.Vector.create(0, -0.014),
+          )
       }
       setCharacterMovement('static')
     }
@@ -126,16 +131,16 @@ export default function Comp() {
       engine: engine,
       canvas: canvasRef.current,
       options: {
-        background: 'transparent',
+        // background: 'transparent',
         wireframes: false,
       },
     })
 
-    const floor = Bodies.rectangle(0, 100, 0, STATIC_DENSITY, {
+    const floor = Bodies.rectangle(0, 100, 0, 100, {
       isStatic: true,
       friction: 0,
       render: {
-        fillStyle: 'blue',
+        fillStyle: 'light blue',
       },
     })
 
@@ -151,10 +156,6 @@ export default function Comp() {
 
     
   }, [])
-
-  // useEffect(() => {
-    
-  // }, [character])
 
   useEffect(() => {
     return () => {
@@ -182,8 +183,8 @@ export default function Comp() {
         y: height + STATIC_DENSITY / 2,
       })
 
-      console.log('width: ' + width)
-      console.log('height: ' + height)
+      // console.log('width: ' + width)
+      // console.log('height: ' + height)
       Matter.Body.setVertices(floor, [
         { x: 0, y: height },
         { x: width*2, y: height},
@@ -224,25 +225,16 @@ export default function Comp() {
           )
         }
       );
-
-      // if (scene.engine.world.bodies[1])
     }
   }, [spawn_character])
-
-  // useEffect(() => {
-    
-  // }, [character_velocity])
 
   return (
     <div
       style={{
-        position: 'relative',
-        border: '1px solid white',
-        padding: '8px',
       }}
     >
       {/* <div style={{ textAlign: 'center' }}>Checkout</div> */}
-      <div
+      {/* <div
         style={{
           display: 'grid',
           gridTemplateColumns: '1fr auto',
@@ -256,7 +248,7 @@ export default function Comp() {
         <div>£xxx</div>
         <div>Total</div>
         <div>£xxx</div> */}
-      </div>
+      {/* </div>  */}
 
       {/* <button
         style={{
@@ -278,7 +270,7 @@ export default function Comp() {
           top: 0,
           left: 0,
           width: '100%',
-          height: '100%',
+          height: '10%',
           pointerEvents: 'none',
         }}
       >
