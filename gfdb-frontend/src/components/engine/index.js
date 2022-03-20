@@ -229,40 +229,7 @@ export default function Comp() {
   }, [spawn_character])
 
   return (
-    <div
-      style={{
-      }}
-    >
-      {/* <div style={{ textAlign: 'center' }}>Checkout</div> */}
-      {/* <div
-        style={{
-          display: 'grid',
-          gridTemplateColumns: '1fr auto',
-          rowGap: '16px',
-          marginBottom: '32px',
-        }}
-      >
-        {/* <div>SubTitle</div>
-        <div>£xxx</div>
-        <div>Discount</div>
-        <div>£xxx</div>
-        <div>Total</div>
-        <div>£xxx</div> */}
-      {/* </div>  */}
-
-      {/* <button
-        style={{
-          cursor: 'pointer',
-          display: 'block',
-          textAlign: 'center',
-          marginBottom: '16px',
-          width: '100%',
-        }}
-        onClick={() => handleClick()}
-      >
-        Checkout
-      </button> */}
-
+    <div> 
       <div
         ref={boxRef}
         style={{
