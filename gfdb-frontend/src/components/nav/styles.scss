@@ -1,7 +1,7 @@
 nav {
     width: 80%;
     margin: 0 auto;
-    padding: 0.5rem 0;
+    padding: 0 0;
     // box-shadow: 0px 5px 0px #bacddb;
 }
 nav ul {
@@ -26,7 +26,7 @@ nav ul li a:before {
     transition: all .5s;
 }
 nav ul li a:hover {
-    color: #b0c4d2;
+    color: #92b7d3;
 }
 
 nav.stroke ul li a {
@@ -41,7 +41,7 @@ nav.stroke ul li a:after {
   width: 0%;
   content: '.';
   color: transparent;
-  background: #bacddb;
+  background: #2d526d;
   height: 1px;
 }
 nav.stroke ul li a:hover:after {
