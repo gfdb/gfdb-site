@@ -22,14 +22,18 @@ export default function Comp() {
   const [constraints, setContraints] = useState()
   const [scene, setScene] = useState()
 
-  const [someStateValue, setSomeStateValue] = useState(false)
+  // const [someStateValue, setSomeStateValue] = useState(false)
 
-  const [character_movement, setCharacterMovement] = useState('none')
-  const [character_velocity, setCharacterVelocity] = useState(0)
+  const [character_movement, setCharacterMovement] = useState(true)
+  // const [character_velocity, setCharacterVelocity] = useState(0)
 
   const [spawn_character, spawnCharacter] = useState(true)
 
-  const [update_sprite, updateSprite] = useState(true)
+  // const [update_sprite, updateSprite] = useState(true)
+
+  const [movementStateArray, setMovementArray] = useState({
+    movement_array: []
+  })
 
   // const [update_sprqite, updateSprite] = useState(false)
 
@@ -37,34 +41,79 @@ export default function Comp() {
     setContraints(boxRef.current.getBoundingClientRect())
   }
 
-  const handleClick = () => {
-    setSomeStateValue(!someStateValue)
-  }
+  // const handleClick = () => {
+  //   setSomeStateValue(!someStateValue)
+  // }
 
-  const handleKeyPress = (e) => {
+  const handleKeyDown = (e) => {
 
     if (e.key === ' ' || e.key === 'ArrowUp') {
-      setCharacterMovement('up')
+      if (!movementStateArray.movement_array.includes('up')) {
+        setMovementArray(movementStateArray => ({
+          movement_array: [movementStateArray.movement_array, 'up']
+        }))
+      }
       console.log('jumped')
     }
 
-    if (e.key === 'ArrowRight' ){
-      setCharacterMovement('right')
+    if (e.key === 'ArrowRight'){
+      if (!movementStateArray.movement_array.includes('right')) {
+        setMovementArray(movementStateArray => ({
+          movement_array: [movementStateArray.movement_array, 'right']
+        }))
+      }
       console.log('you pressed right')
     }
 
     if (e.key === 'ArrowDown'){
-      setCharacterMovement('down')
+      if (!movementStateArray.movement_array.includes('down')) {
+        setMovementArray(movementStateArray => ({
+          movement_array: [movementStateArray.movement_array, 'down']
+        }))
+      }
       console.log('you pressed down')
     }
 
-    if (e.key === 'ArrowLeft' ){
-      setCharacterMovement('left')
+    if (e.key === 'ArrowLeft') {
+      console.log([movementStateArray.movement_array])
+      if (!movementStateArray.movement_array.includes('left')) {
+        setMovementArray(movementStateArray => ({
+          movement_array: [movementStateArray.movement_array, 'left']
+        }))
+      }
       console.log('you pressed left')
+    }
+    console.log(movementStateArray.movement_array)
+  };
+
+  const handleKeyUp = (e) => {
+
+    // considering
+
+    var index = -1
+    var temp_movement_array = movementStateArray.movement_array
+
+    if (e.key === ' ' || e.key === 'ArrowUp')
+      index = temp_movement_array.indexOf('up')
+
+    if (e.key === 'ArrowRight')
+      index = temp_movement_array.indexOf('right')
+
+    if (e.key === 'ArrowDown')
+      index = temp_movement_array.indexOf('down')      
+
+    if (e.key === 'ArrowLeft')
+      index = temp_movement_array.indexOf('left')
+
+    if (index > -1) {
+      setMovementArray({
+        movement_array: temp_movement_array
+      })
     }
   };
 
-  use_event('keydown', handleKeyPress);
+  use_event('keydown', handleKeyDown);
+  use_event('keyup', handleKeyUp);
 
   useEffect(() => {
     if (scene) {
@@ -84,39 +133,44 @@ export default function Comp() {
             {x: constraints.width, y: penguin.position.y}
           )
       }
-      if(character_movement.localeCompare('right') === 0) {
+      if(movementStateArray.movement_array.includes('right')) {
         Matter.Body.applyForce(
           penguin,
           penguin.position,
-          Matter.Vector.create(0.001, 0)
+          Matter.Vector.create(0.00005, 0)
         )
       }
 
-      if(character_movement.localeCompare('left') === 0) {
+      if(movementStateArray.movement_array.includes('left')) {
         Matter.Body.applyForce(
           penguin,
           penguin.position,
-          Matter.Vector.create(-0.001, 0)
+          Matter.Vector.create(-0.00005, 0)
         )
       }
 
-      if(character_movement.localeCompare('up') === 0) {
+      if(movementStateArray.movement_array.includes('up')) {
         // console.log(floor.position.y)
-        console.log(floor)
-        console.log(penguin)
+        // console.log(floor)
+        // console.log(penguin)
         // console.log(Matter.Collision.collides(penguin, floor).collided)
         // check to make sure they are not already jumping
-        if (Matter.Collision.collides(penguin, floor) != null)
+        if (Matter.Collision.collides(penguin, floor) != null) {
+          console.log('jumped')
           Matter.Body.applyForce(
-            scene.engine.world.bodies[1],
-            scene.engine.world.bodies[1].position,
+            penguin,
+            penguin.position,
             Matter.Vector.create(0, -0.014),
           )
+        }
       }
-      setCharacterMovement('static')
+      if (movementStateArray.movement_array.length !== 0) {
+        console.log(movementStateArray.movement_array.length)
+        setCharacterMovement(!character_movement)
+      }
     }
 
-  }, [character_movement])
+  }, [movementStateArray, character_movement])
 
   useEffect(() => {
     let Engine = Matter.Engine
