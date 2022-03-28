@@ -3,7 +3,6 @@ import Matter, { use } from 'matter-js'
 import { use_event } from '../hooks';
 
 const STATIC_DENSITY = 15
-const PARTICLE_SIZE = 6
 
 // urls have to be preloaded in matterjs
 const loadImage = (url, onSuccess) => {
@@ -14,7 +13,26 @@ const loadImage = (url, onSuccess) => {
   img.src = url;
 };
 
-export default function Comp() {
+function teleport_character(scene, penguin, constraints) {
+
+  if (scene === undefined) return
+  if (penguin === undefined) return
+  if (constraints === undefined) return
+
+  if (penguin.position.x > constraints.width)
+    Matter.Body.setPosition(
+      penguin,
+      {x: 10, y: penguin.position.y}
+    )
+  if (penguin.position.x < 0)
+    Matter.Body.setPosition(
+      penguin,
+      {x: constraints.width, y: penguin.position.y}
+    )
+      
+}
+
+export default function NavGame() {
 
   const boxRef = useRef(null)
   const canvasRef = useRef(null)
@@ -22,18 +40,13 @@ export default function Comp() {
   const [constraints, setContraints] = useState()
   const [scene, setScene] = useState()
 
-  // const [someStateValue, setSomeStateValue] = useState(false)
-
   const [character_movement, setCharacterMovement] = useState(true)
-  // const [character_velocity, setCharacterVelocity] = useState(0)
 
   const [spawn_character, spawnCharacter] = useState(true)
 
   // const [update_sprite, updateSprite] = useState(true)
 
-  const [movementStateArray, setMovementArray] = useState({
-    movement_array: []
-  })
+  const [movementStateArray, setMovementArray] = useState({movement_array: []})
 
   // const [update_sprqite, updateSprite] = useState(false)
 
@@ -45,53 +58,48 @@ export default function Comp() {
   //   setSomeStateValue(!someStateValue)
   // }
 
+  useEffect(() => {
+    const interval = setInterval(() => {
+      if (Array.isArray(movementStateArray.movement_array) 
+          && movementStateArray.movement_array.length) {
+        setCharacterMovement(character_movement => !character_movement)
+      }
+
+      teleport_character(scene, scene.engine.world.bodies[3], constraints)
+
+    }, 35)
+    return () => clearInterval(interval);
+  }, [])
+
   const handleKeyDown = (e) => {
 
+    let temp_movement_array =  movementStateArray.movement_array
+
     if (e.key === ' ' || e.key === 'ArrowUp') {
-      if (!movementStateArray.movement_array.includes('up')) {
-        setMovementArray(movementStateArray => ({
-          movement_array: [movementStateArray.movement_array, 'up']
-        }))
-      }
-      console.log('jumped')
+      if (!movementStateArray.movement_array.includes('up'))
+        temp_movement_array.push('up')
     }
 
     if (e.key === 'ArrowRight'){
-      if (!movementStateArray.movement_array.includes('right')) {
-        setMovementArray(movementStateArray => ({
-          movement_array: [movementStateArray.movement_array, 'right']
-        }))
-      }
-      console.log('you pressed right')
+      if (!movementStateArray.movement_array.includes('right'))
+        temp_movement_array.push('right')
     }
 
     if (e.key === 'ArrowDown'){
-      if (!movementStateArray.movement_array.includes('down')) {
-        setMovementArray(movementStateArray => ({
-          movement_array: [movementStateArray.movement_array, 'down']
-        }))
-      }
-      console.log('you pressed down')
+      if (!movementStateArray.movement_array.includes('down'))
+        temp_movement_array.push('down')
     }
 
     if (e.key === 'ArrowLeft') {
-      console.log([movementStateArray.movement_array])
-      if (!movementStateArray.movement_array.includes('left')) {
-        setMovementArray(movementStateArray => ({
-          movement_array: [movementStateArray.movement_array, 'left']
-        }))
-      }
-      console.log('you pressed left')
+      if (!movementStateArray.movement_array.includes('left'))
+        temp_movement_array.push('left')
     }
-    console.log(movementStateArray.movement_array)
   };
 
   const handleKeyUp = (e) => {
 
-    // considering
-
-    var index = -1
-    var temp_movement_array = movementStateArray.movement_array
+    let index = -1
+    let temp_movement_array = movementStateArray.movement_array
 
     if (e.key === ' ' || e.key === 'ArrowUp')
       index = temp_movement_array.indexOf('up')
@@ -106,9 +114,8 @@ export default function Comp() {
       index = temp_movement_array.indexOf('left')
 
     if (index > -1) {
-      setMovementArray({
-        movement_array: temp_movement_array
-      })
+      temp_movement_array.splice(index, 1)
+      setMovementArray({ movement_array: temp_movement_array })
     }
   };
 
@@ -117,27 +124,14 @@ export default function Comp() {
 
   useEffect(() => {
     if (scene) {
-
-      let penguin = scene.engine.world.bodies[1]
+      const penguin = scene.engine.world.bodies[3]
       let floor = scene.engine.world.bodies[0]
 
-      if (scene && penguin && constraints) {
-        if (penguin.position.x > constraints.width)
-          Matter.Body.setPosition(
-            penguin,
-            {x: 10, y: penguin.position.y}
-          )
-        if (penguin.position.x < 0)
-          Matter.Body.setPosition(
-            penguin,
-            {x: constraints.width, y: penguin.position.y}
-          )
-      }
       if(movementStateArray.movement_array.includes('right')) {
         Matter.Body.applyForce(
           penguin,
           penguin.position,
-          Matter.Vector.create(0.00005, 0)
+          Matter.Vector.create(0.001, 0)
         )
       }
 
@@ -145,28 +139,19 @@ export default function Comp() {
         Matter.Body.applyForce(
           penguin,
           penguin.position,
-          Matter.Vector.create(-0.00005, 0)
+          Matter.Vector.create(-0.001, 0)
         )
       }
 
       if(movementStateArray.movement_array.includes('up')) {
-        // console.log(floor.position.y)
-        // console.log(floor)
-        // console.log(penguin)
-        // console.log(Matter.Collision.collides(penguin, floor).collided)
         // check to make sure they are not already jumping
         if (Matter.Collision.collides(penguin, floor) != null) {
-          console.log('jumped')
           Matter.Body.applyForce(
             penguin,
             penguin.position,
             Matter.Vector.create(0, -0.014),
           )
         }
-      }
-      if (movementStateArray.movement_array.length !== 0) {
-        console.log(movementStateArray.movement_array.length)
-        setCharacterMovement(!character_movement)
       }
     }
 
@@ -198,7 +183,25 @@ export default function Comp() {
       },
     })
 
+    const wall_left = Bodies.rectangle(0, 100, 1, 10000, {
+      isStatic: true,
+      friction: 0,
+      render: {
+        fillStyle: 'red'
+      }
+    })
+
+    const wall_right = Bodies.rectangle(0, 100, 1, 10000, {
+      isStatic: true,
+      friction: 0,
+      render: {
+        fillStyle: 'red'
+      }
+    })
+
     World.add(engine.world, [floor])
+    World.add(engine.world, [wall_left])
+    World.add(engine.world, [wall_right])
 
     Matter.Runner.run(engine)
     Render.run(render)
@@ -232,19 +235,31 @@ export default function Comp() {
       // Dynamically update floor
       const floor = scene.engine.world.bodies[0]
 
+      const wall_left = scene.engine.world.bodies[1]
+
+      const wall_right = scene.engine.world.bodies[2]
+
       Matter.Body.setPosition(floor, {
         x: width / 2,
         y: height + STATIC_DENSITY / 2,
       })
 
-      // console.log('width: ' + width)
-      // console.log('height: ' + height)
       Matter.Body.setVertices(floor, [
         { x: 0, y: height },
         { x: width*2, y: height},
         { x: width*2, y: height + STATIC_DENSITY },
         { x: 0, y: height + STATIC_DENSITY },
       ])
+
+      Matter.Body.setPosition(wall_right, {
+        x: width + 100,
+        y: height + STATIC_DENSITY / 2
+      })
+
+      Matter.Body.setPosition(wall_left, {
+        x: -100,
+        y: height + STATIC_DENSITY / 2
+      })
 
       // spawn character into the game
       if (spawn_character) {
@@ -259,7 +274,6 @@ export default function Comp() {
       loadImage(
         "/penguin/penguin_walk01.png",
         url => {
-          console.log("Success");
           let { width } = constraints
           let randomX = Math.floor(Math.random() * -width) + width
           Matter.World.add(

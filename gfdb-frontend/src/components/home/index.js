@@ -1,8 +1,8 @@
 import './home.css';
-import Comp from '../engine'
+import NavGame from '../engine'
 
 function Home() {
-  return (<Comp />);
+  return (<NavGame />);
 }
 
 export default Home;
