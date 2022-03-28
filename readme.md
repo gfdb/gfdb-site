@@ -7,7 +7,7 @@ This is my personal website. Naturally, I plan to use it to display my work expe
 - ReactJS 
 ### backend
 - NodeJS
-### physics for the games
+### physics for nav game
 - MatterJS
 
 # Goals for this project
