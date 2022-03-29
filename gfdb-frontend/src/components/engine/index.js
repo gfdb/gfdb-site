@@ -202,6 +202,8 @@ export default function NavGame() {
     World.add(engine.world, [floor])
     World.add(engine.world, [wall_left])
     World.add(engine.world, [wall_right])
+    
+    engine.gravity.y = 1
 
     Matter.Runner.run(engine)
     Render.run(render)
