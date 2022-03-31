@@ -13,25 +13,6 @@ const loadImage = (url, onSuccess) => {
   img.src = url;
 };
 
-function teleport_character(scene, penguin, constraints) {
-
-  if (scene === undefined) return
-  if (penguin === undefined) return
-  if (constraints === undefined) return
-
-  if (penguin.position.x > constraints.width)
-    Matter.Body.setPosition(
-      penguin,
-      {x: 10, y: penguin.position.y}
-    )
-  if (penguin.position.x < 0)
-    Matter.Body.setPosition(
-      penguin,
-      {x: constraints.width, y: penguin.position.y}
-    )
-      
-}
-
 export default function NavGame() {
 
   const boxRef = useRef(null)
@@ -41,8 +22,8 @@ export default function NavGame() {
   const [scene, setScene] = useState()
 
   const [character_movement, setCharacterMovement] = useState(true)
-
   const [spawn_character, spawnCharacter] = useState(true)
+  const [teleport_flag, set_teleport_flag] = useState(false)
 
   // const [update_sprite, updateSprite] = useState(true)
 
@@ -54,22 +35,39 @@ export default function NavGame() {
     setContraints(boxRef.current.getBoundingClientRect())
   }
 
-  // const handleClick = () => {
-  //   setSomeStateValue(!someStateValue)
-  // }
-
   useEffect(() => {
-    const interval = setInterval(() => {
-      if (Array.isArray(movementStateArray.movement_array) 
-          && movementStateArray.movement_array.length) {
-        setCharacterMovement(character_movement => !character_movement)
-      }
+    if (!spawn_character) {
+      const interval = setInterval(() => {
+        if (Array.isArray(movementStateArray.movement_array) 
+            && movementStateArray.movement_array.length) {
+          setCharacterMovement(character_movement => !character_movement)
+        }
 
-      teleport_character(scene, scene.engine.world.bodies[3], constraints)
+        
+        
+        // check to see if penguin is in bounds, if not 
+        // teleport him back in bounds on the opposite side of the screen
+        if (scene && constraints) {
+                  
+          const penguin = scene.engine.world.bodies[3]
+    
+          if (penguin.position.x > constraints.width)
+            Matter.Body.setPosition(
+              penguin,
+              {x: 10, y: penguin.position.y}
+            )
+          if (penguin.position.x < 0)
+            Matter.Body.setPosition(
+              penguin,
+              {x: constraints.width, y: penguin.position.y}
+            )
+        }
 
-    }, 35)
-    return () => clearInterval(interval);
-  }, [])
+      }, 35)
+      return () => clearInterval(interval);
+    }
+    
+  }, [spawn_character])
 
   const handleKeyDown = (e) => {
 
@@ -121,6 +119,7 @@ export default function NavGame() {
 
   use_event('keydown', handleKeyDown);
   use_event('keyup', handleKeyUp);
+
 
   useEffect(() => {
     if (scene) {
