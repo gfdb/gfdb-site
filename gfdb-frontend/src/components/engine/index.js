@@ -23,7 +23,6 @@ export default function NavGame() {
 
   const [character_movement, setCharacterMovement] = useState(true)
   const [spawn_character, spawnCharacter] = useState(true)
-  const [teleport_flag, set_teleport_flag] = useState(false)
 
   // const [update_sprite, updateSprite] = useState(true)
 
