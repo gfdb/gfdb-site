@@ -7,9 +7,9 @@ function Home() {
     <div>
       <NavGame />
       <Nav />
-      <div className='home-header'>
-        <h1>Gianfranco</h1>
-        <h4>gfdb</h4>
+      <div className='home-content'>
+        <h1>Gianfranco Dumoulin Bertucci</h1>
+        <h4>Software Engineering Major</h4>
       </div>
     </div>
   )  
