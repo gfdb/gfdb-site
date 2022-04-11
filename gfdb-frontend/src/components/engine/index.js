@@ -1,6 +1,7 @@
 import React, { useEffect, useState, useRef } from 'react'
 import Matter, { use } from 'matter-js'
 import { use_event } from '../hooks';
+import { trim_url_domain, load_image } from '../../helpers';
 
 const STATIC_DENSITY = 15
 
@@ -20,14 +21,7 @@ const JUMP_ANIMATION = [
   "/penguin_jump03.png"
 ]
 
-// urls have to be preloaded in matterjs
-const loadImage = (url, onSuccess) => {
-  const img = new Image();
-  img.onload = () => {
-    onSuccess(img.src);
-  };
-  img.src = url;
-};
+
 
 export default function NavGame() {
 
@@ -67,6 +61,7 @@ export default function NavGame() {
           const penguin = scene.engine.world.bodies[3]
 
           if (penguin !== undefined) {
+
             if (penguin.position.x > constraints.width)
             Matter.Body.setPosition(
               penguin,
@@ -78,19 +73,38 @@ export default function NavGame() {
                 {x: constraints.width, y: penguin.position.y}
               )
 
-          let sprite_to_apply = undefined
+            let sprite_to_apply = undefined
+            let current_texture = trim_url_domain(penguin.render.sprite.texture)
 
-          if (penguin.velocity.x < 0 && penguin.velocity.x > -1)
-              sprite_to_apply = SPRITE_PATH_LEFT + DEFAULT_SPRITE
-          if (penguin.velocity.x > 0 && penguin.velocity.x < 1)
-            sprite_to_apply = SPRITE_PATH_RIGHT + DEFAULT_SPRITE
-
-          if (sprite_to_apply !== undefined && penguin.render.sprite.texture !== sprite_to_apply)
-            loadImage(sprite_to_apply, url => {
-              penguin.render.sprite.texture = url
-            });
+            // penguin was moving left
+            if (penguin.velocity.x < 0 && penguin.velocity.x > -1)
+              sprite_to_apply = SPRITE_PATH_LEFT
+            // penguin was moving right
+            else if (penguin.velocity.x > 0 && penguin.velocity.x < 1)
+              sprite_to_apply = SPRITE_PATH_RIGHT
             
-          }
+            if (sprite_to_apply !== undefined) {
+              switch (current_texture) {
+                case (sprite_to_apply + SLIDE_ANIMATION[1]):
+                  sprite_to_apply += SLIDE_ANIMATION[0]
+                  break;
+
+                case (sprite_to_apply + SLIDE_ANIMATION[0]):
+                  sprite_to_apply += DEFAULT_SPRITE
+                  break;
+
+                default:
+                  sprite_to_apply = current_texture
+              }
+            }
+
+            if (sprite_to_apply !== undefined && 
+                penguin.render.sprite.texture !== sprite_to_apply)
+              load_image(sprite_to_apply, url => {
+                penguin.render.sprite.texture = url
+              });
+              
+            }
         }
       }, 35)
       return () => clearInterval(interval);
@@ -105,125 +119,42 @@ export default function NavGame() {
       const penguin = scene.engine.world.bodies[3]
       const floor = scene.engine.world.bodies[0]
 
-      let  current_texture = penguin.render.sprite.texture
-      let sprite_to_apply = SPRITE_PATH_RIGHT + DEFAULT_SPRITE // default 
+      let  current_texture = trim_url_domain(penguin.render.sprite.texture)
+      let sprite_to_apply = undefined
 
-      /* 
-      since the body's texture is already loaded it has the https://domain_name
-      in it, so the following is to remove that before we compare paths
-      */
-      let tmp_url = window.location.href
-      let tmp_path = window.location.pathname
-      if (tmp_path === '/')
-        // we are on the homepage
-        tmp_url = tmp_url.slice(0, -1)
-      else
-        // we are somewhere else
-        tmp_url = tmp_url.replace(tmp_path, '')
-
-      current_texture = current_texture.replace(tmp_url, '')    
-
-      // if penguin is not jumping
-      if (Matter.Collision.collides(penguin, floor) != null) {
-
-
-        if (penguin.velocity.x > 1) {
+      if (penguin.velocity.x > 1)
           // penguin moving right
-          switch(current_texture) {
-            case (SPRITE_PATH_RIGHT + DEFAULT_SPRITE):
-              sprite_to_apply = SPRITE_PATH_RIGHT + SLIDE_ANIMATION[0]
-              break;
-            case (SPRITE_PATH_RIGHT + SLIDE_ANIMATION[0]):
-              sprite_to_apply = SPRITE_PATH_RIGHT + SLIDE_ANIMATION[1]
-              break;
-            case (SPRITE_PATH_RIGHT + SLIDE_ANIMATION[1]):
-              sprite_to_apply = SPRITE_PATH_RIGHT + SLIDE_ANIMATION[1]
-              break;
-            default:
-              // default is already set
-          } 
-        } 
-        
-        if (penguin.velocity.x < -1) {
-          // penguin moving left
-          console.log(current_texture)
-          console.log(SPRITE_PATH_LEFT + DEFAULT_SPRITE);
-          
-          switch(current_texture) {
-            case (SPRITE_PATH_LEFT + DEFAULT_SPRITE):
-              sprite_to_apply = SPRITE_PATH_LEFT + SLIDE_ANIMATION[0]
-              console.log(sprite_to_apply)
-              console.log('...');
-              
-              break;
-            case (SPRITE_PATH_LEFT + SLIDE_ANIMATION[0]):
-              sprite_to_apply = SPRITE_PATH_LEFT + SLIDE_ANIMATION[1]
-              break;
-            case (SPRITE_PATH_LEFT + SLIDE_ANIMATION[1]):
-              sprite_to_apply = SPRITE_PATH_LEFT + SLIDE_ANIMATION[1]
-              break;
-            default:
-              sprite_to_apply = SPRITE_PATH_LEFT + DEFAULT_SPRITE
-          }
-        }
-
-      } else {
-        // penguin is jumping
-        // if (penguin.velocity.x > 1) {
-        //   // penguin moving right
-        //   switch(current_texture) {
-        //     case (SPRITE_PATH_RIGHT + DEFAULT_SPRITE):
-        //       sprite_to_apply = SPRITE_PATH_RIGHT + SLIDE_ANIMATION[0]
-        //       break;
-        //     case (SPRITE_PATH_RIGHT + SLIDE_ANIMATION[0]):
-        //       sprite_to_apply = SPRITE_PATH_RIGHT + SLIDE_ANIMATION[1]
-        //       break;
-        //     case (SPRITE_PATH_RIGHT + SLIDE_ANIMATION[1]):
-        //       sprite_to_apply = SPRITE_PATH_RIGHT + SLIDE_ANIMATION[1]
-        //       break;
-        //     default:
-        //       // default is already set
-        //   } 
-        // } 
-        
-        // if (penguin.velocity.x < -1) {
-        //   // penguin moving left
-        //   console.log(current_texture)
-        //   console.log(SPRITE_PATH_LEFT + DEFAULT_SPRITE);
-          
-        //   switch(current_texture) {
-        //     case (SPRITE_PATH_LEFT + DEFAULT_SPRITE):
-        //       sprite_to_apply = SPRITE_PATH_LEFT + SLIDE_ANIMATION[0]
-        //       console.log(sprite_to_apply)
-        //       console.log('...');
-              
-        //       break;
-        //     case (SPRITE_PATH_LEFT + SLIDE_ANIMATION[0]):
-        //       sprite_to_apply = SPRITE_PATH_LEFT + SLIDE_ANIMATION[1]
-        //       break;
-        //     case (SPRITE_PATH_LEFT + SLIDE_ANIMATION[1]):
-        //       sprite_to_apply = SPRITE_PATH_LEFT + SLIDE_ANIMATION[1]
-        //       break;
-        //     default:
-        //       sprite_to_apply = SPRITE_PATH_LEFT + DEFAULT_SPRITE
-        //   }
-        // }
-      }
-
-      console.log(penguin.velocity.x)
-
-      console.log(current_texture)
-      console.log(sprite_to_apply)
-      console.log('...');
+          sprite_to_apply = SPRITE_PATH_RIGHT
+      else if (penguin.velocity.x < -1)
+        // penguin moving left
+        sprite_to_apply = SPRITE_PATH_LEFT
       
-
-      if (current_texture !== sprite_to_apply)
-        console.log('changing sprite to '+ sprite_to_apply)
-        loadImage(sprite_to_apply, url => {
+      if (sprite_to_apply !== undefined) {
+        // if penguin is not jumping
+        if (Matter.Collision.collides(penguin, floor) != null) {
+          switch(current_texture) {
+            case (sprite_to_apply + DEFAULT_SPRITE):
+              sprite_to_apply += SLIDE_ANIMATION[0]
+              break;
+            case (sprite_to_apply + SLIDE_ANIMATION[0]):
+              sprite_to_apply += SLIDE_ANIMATION[1]
+              break;
+            case (sprite_to_apply + SLIDE_ANIMATION[1]):
+              sprite_to_apply += SLIDE_ANIMATION[1]
+              break;
+            default:
+              sprite_to_apply += DEFAULT_SPRITE
+          }
+        } else {
+            console.log(penguin.position.y)
+        }
+      }
+      if (sprite_to_apply !== undefined && current_texture !== sprite_to_apply) {
+        load_image(sprite_to_apply, url => {
               penguin.render.sprite.texture = url
             }
         );
-
+      }
       updateSpriteFlag(false)
     }
   }, [update_sprite_flag])
@@ -307,7 +238,7 @@ export default function NavGame() {
           Matter.Body.applyForce(
             penguin,
             penguin.position,
-            Matter.Vector.create(0, -0.014),
+            Matter.Vector.create(0, -0.012),
           )
         }
       }
@@ -362,7 +293,7 @@ export default function NavGame() {
     World.add(engine.world, [wall_left])
     World.add(engine.world, [wall_right])
     
-    engine.gravity.y = 1
+    engine.gravity.y = 0.5
 
     Matter.Runner.run(engine)
     Render.run(render)
@@ -432,12 +363,12 @@ export default function NavGame() {
   useEffect(() => {
     // Add character to the game
     if (scene) {
-      loadImage(
+      load_image(
         "/penguin/right/penguin_walk01.png",
         url => {
           let { width } = constraints
           let randomX = Math.floor(Math.random() * -width) + width
-          const penguin = Matter.World.add(
+          Matter.World.add(
             scene.engine.world,
             Matter.Bodies.rectangle(randomX, 0, 25, 25,
               {
