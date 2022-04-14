@@ -21,6 +21,10 @@ const JUMP_ANIMATION = [
   "/penguin_jump03.png"
 ]
 
+var loaded_frames = {
+
+}
+
 
 
 export default function NavGame() {
@@ -122,11 +126,11 @@ export default function NavGame() {
       let  current_texture = trim_url_domain(penguin.render.sprite.texture)
       let sprite_to_apply = undefined
 
+      // penguin moving right
       if (penguin.velocity.x > 1)
-          // penguin moving right
           sprite_to_apply = SPRITE_PATH_RIGHT
+      // penguin moving left
       else if (penguin.velocity.x < -1)
-        // penguin moving left
         sprite_to_apply = SPRITE_PATH_LEFT
       
       if (sprite_to_apply !== undefined) {
@@ -149,7 +153,8 @@ export default function NavGame() {
             console.log(penguin.position.y)
         }
       }
-      if (sprite_to_apply !== undefined && current_texture !== sprite_to_apply) {
+      if (sprite_to_apply !== undefined 
+          && current_texture !== sprite_to_apply) {
         load_image(sprite_to_apply, url => {
               penguin.render.sprite.texture = url
             }

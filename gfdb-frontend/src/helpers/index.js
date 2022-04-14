@@ -21,7 +21,7 @@ function trim_url_domain(url_to_trim) {
     return url_to_trim.replace(tmp_url, '') 
 }
 
-// urls have to be preloaded in matterjs
+// urls have to be preloaded
 function load_image(url, onSuccess) {
     const img = new Image();
     img.onload = () => {
