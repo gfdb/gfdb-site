@@ -24,6 +24,7 @@ This is my first time using React. It's also my first time having an independant
 
 I'll write more about the site in this readme when there is more to show.
 
-<sub>If you are reading this, try using the arrow keys and the space bar to move the little dude in the navbar.</sub>
+<sub>If you are reading this, try using the arrow keys and the space bar to move the little dude in the navbar. 
+i used the arrow keys and nothing happend 👮</sub>
 
 
