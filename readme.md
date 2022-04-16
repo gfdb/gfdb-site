@@ -2,6 +2,12 @@
 
 This is my personal website. I plan to use it to display my work experience and skills. Beyond that though, I'm not sure what I'm going to do with it yet. I'd like it to just be a cool place where I can build things and put them on display for people like you to see and interact with. 
 
+# How to Run (frontend)
+
+1. cd into the gfdb-frontend directory
+2.  ```npm install```
+3.  ```npm start```
+
 # Tech Stack
 ### frontend
 - ReactJS 
