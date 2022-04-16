@@ -1,10 +1,11 @@
 
 function trim_url_domain(url_to_trim) {
-    
     /* 
       since the body's texture is already loaded it has the https://domain_name
       in it, so the following is to remove that before we compare paths
     */
+    if (url_to_trim === undefined)
+        return url_to_trim
     if (!url_to_trim.includes("http"))
         return url_to_trim
     
@@ -22,12 +23,16 @@ function trim_url_domain(url_to_trim) {
 }
 
 // urls have to be preloaded
-function load_image(url, onSuccess) {
-    const img = new Image();
-    img.onload = () => {
-      onSuccess(img.src);
-    };
-    img.src = url;
+function load_image(url) {
+    var img = new Image()
+    img.src = url
+    return img.src
 }
 
-export {trim_url_domain, load_image}
+function preload_sprites(arr_sprite_urls) {
+    let loaded_sprites = new Object()
+    arr_sprite_urls.forEach(sprite_url => loaded_sprites[sprite_url] = load_image(sprite_url))
+    return loaded_sprites
+}
+
+export {trim_url_domain, preload_sprites}
