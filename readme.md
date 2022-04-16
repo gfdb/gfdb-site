@@ -18,7 +18,7 @@ This is my personal website. I plan to use it to display my work experience and 
 
 # Goals for this project
 - Learn more about React and javascript in general.
-- Build a unique website, not some boring resume website that you've seen 1000 times.
+- Build a unique website.
 - Learn a bit about UI design.
 - Learn a bit about game design.
 - It wasn't a goal at the beginning but I ended up brushing up on my physics lol
