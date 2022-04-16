@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useRef } from 'react'
 import Matter, { use } from 'matter-js'
 import { use_event } from '../hooks';
-import { trim_url_domain, load_image } from '../../helpers';
+import { trim_url_domain, preload_sprites } from '../../helpers';
 
 const STATIC_DENSITY = 15
 
@@ -21,10 +21,21 @@ const JUMP_ANIMATION = [
   "/penguin_jump03.png"
 ]
 
-var loaded_frames = {
+var loaded_sprites = preload_sprites([
+  SPRITE_PATH_LEFT + DEFAULT_SPRITE,
+  SPRITE_PATH_LEFT + SLIDE_ANIMATION[0],
+  SPRITE_PATH_LEFT + SLIDE_ANIMATION[1],
+  SPRITE_PATH_LEFT + JUMP_ANIMATION[0],
+  SPRITE_PATH_LEFT + JUMP_ANIMATION[1],
+  SPRITE_PATH_LEFT + JUMP_ANIMATION[2],
 
-}
-
+  SPRITE_PATH_RIGHT + DEFAULT_SPRITE,
+  SPRITE_PATH_RIGHT + SLIDE_ANIMATION[0],
+  SPRITE_PATH_RIGHT + SLIDE_ANIMATION[1],
+  SPRITE_PATH_RIGHT + JUMP_ANIMATION[0],
+  SPRITE_PATH_RIGHT + JUMP_ANIMATION[1],
+  SPRITE_PATH_RIGHT + JUMP_ANIMATION[2],
+])
 
 
 export default function NavGame() {
@@ -103,12 +114,11 @@ export default function NavGame() {
             }
 
             if (sprite_to_apply !== undefined && 
-                penguin.render.sprite.texture !== sprite_to_apply)
-              load_image(sprite_to_apply, url => {
-                penguin.render.sprite.texture = url
-              });
-              
+                penguin.render.sprite.texture !== sprite_to_apply) {
+              penguin.render.sprite.texture = loaded_sprites[sprite_to_apply]
             }
+              
+          }
         }
       }, 35)
       return () => clearInterval(interval);
@@ -128,7 +138,7 @@ export default function NavGame() {
 
       // penguin moving right
       if (penguin.velocity.x > 1)
-          sprite_to_apply = SPRITE_PATH_RIGHT
+        sprite_to_apply = SPRITE_PATH_RIGHT
       // penguin moving left
       else if (penguin.velocity.x < -1)
         sprite_to_apply = SPRITE_PATH_LEFT
@@ -150,15 +160,13 @@ export default function NavGame() {
               sprite_to_apply += DEFAULT_SPRITE
           }
         } else {
-            console.log(penguin.position.y)
+          // TODO: add jump animation
+          sprite_to_apply = current_texture
         }
       }
       if (sprite_to_apply !== undefined 
           && current_texture !== sprite_to_apply) {
-        load_image(sprite_to_apply, url => {
-              penguin.render.sprite.texture = url
-            }
-        );
+        penguin.render.sprite.texture = loaded_sprites[sprite_to_apply]
       }
       updateSpriteFlag(false)
     }
@@ -290,13 +298,22 @@ export default function NavGame() {
       isStatic: true,
       friction: 0,
       render: {
-        fillStyle: 'red'
+        fillStyle: 'light blue'
       }
     })
+
+    // const ceiling = Bodies.rectangle(0, 100, 0, 100, {
+    //   isStatic: true,
+    //   friction: 0,
+    //   render: {
+    //     fillStyle: 'light blue',
+    //   },
+    // })
 
     World.add(engine.world, [floor])
     World.add(engine.world, [wall_left])
     World.add(engine.world, [wall_right])
+    // World.add(engine.world, [ceiling])
     
     engine.gravity.y = 0.5
 
@@ -336,6 +353,9 @@ export default function NavGame() {
 
       const wall_right = scene.engine.world.bodies[2]
 
+      // const ceiling = scene.engine.world.bodies[3]
+
+
       Matter.Body.setPosition(floor, {
         x: width / 2,
         y: height + STATIC_DENSITY / 2,
@@ -358,6 +378,18 @@ export default function NavGame() {
         y: height + STATIC_DENSITY / 2
       })
 
+      // Matter.Body.setPosition(ceiling, {
+      //   x: width / 2,
+      //   y: -5,
+      // })
+
+      // Matter.Body.setVertices(ceiling, [
+      //   { x: 0, y: 0 },
+      //   { x: width*2, y: 0},
+      //   { x: width*2, y: 1},
+      //   { x: 0, y: 1},
+      // ])
+
       // spawn character into the game
       if (spawn_character) {
         spawnCharacter(false)
@@ -368,28 +400,25 @@ export default function NavGame() {
   useEffect(() => {
     // Add character to the game
     if (scene) {
-      load_image(
-        "/penguin/right/penguin_walk01.png",
-        url => {
-          let { width } = constraints
-          let randomX = Math.floor(Math.random() * -width) + width
-          Matter.World.add(
-            scene.engine.world,
-            Matter.Bodies.rectangle(randomX, 0, 25, 25,
-              {
-                friction: 0,
-                render: {
-                  sprite: {
-                    texture: url,
-                    xScale: 0.4,
-                    yScale: 0.4
-                  }
-                }
-              }
-            )
-          )
+      let { width } = constraints
+      let randomX = Math.floor(Math.random() * -width) + width
+
+      const penguin = Matter.Bodies.rectangle(randomX, 2, 25, 25,
+        {
+          friction: 0,
+          render: {
+            sprite: {
+              texture: loaded_sprites[SPRITE_PATH_RIGHT + DEFAULT_SPRITE],
+              xScale: 0.4,
+              yScale: 0.4
+            }
+          }
         }
-      );
+      )
+      Matter.World.add(scene.engine.world, penguin)
+
+
+      
     }
   }, [spawn_character])
 
