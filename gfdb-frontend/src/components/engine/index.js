@@ -2,6 +2,7 @@ import React, { useEffect, useState, useRef } from 'react'
 import Matter, { use } from 'matter-js'
 import { use_event } from '../hooks';
 import { trim_url_domain, preload_sprites } from '../../helpers';
+import './engine.scss'
 
 const STATIC_DENSITY = 15
 
@@ -38,7 +39,7 @@ var loaded_sprites = preload_sprites([
 ])
 
 
-export default function NavGame() {
+export default function Penguin() {
 
 	const boxRef = useRef(null)
 	const canvasRef = useRef(null)
@@ -423,7 +424,7 @@ export default function NavGame() {
 	}, [spawn_character])
 
 	return (
-		<div> 
+		<div className='penguin'> 
 			<div
 				ref={boxRef}
 				style={{
