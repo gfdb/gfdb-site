@@ -1,5 +1,5 @@
 import './nav.scss'
-import Penguin from "../../components/engine/index"
+import Penguin from "../../components/penguin/index"
 import { Outlet, Link } from "react-router-dom";
 
 export default function Nav() {
