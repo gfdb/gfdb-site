@@ -11,6 +11,9 @@ export default function App() {
 			<Routes>
 				<Route path="/" element={<Nav />}>
 					<Route index element={<Home />} />
+					<Route path="/education" />
+					<Route path="/work-experience" />
+					<Route path="/games" />
 				</Route>
 			</Routes>
 		</BrowserRouter>
