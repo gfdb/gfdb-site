@@ -2,7 +2,7 @@ import React, { useEffect, useState, useRef } from 'react'
 import Matter, { use } from 'matter-js'
 import { use_event } from '../hooks';
 import { trim_url_domain, preload_sprites } from '../../helpers';
-import './engine.scss'
+import './penguin.scss'
 
 const STATIC_DENSITY = 15
 
@@ -227,9 +227,10 @@ export default function Penguin() {
 
 	useEffect(() => {
 		if (scene) {
-			const penguin = scene.engine.world.bodies[3]
+			
 			let floor = scene.engine.world.bodies[0]
-
+			const penguin = scene.engine.world.bodies[3]
+			
 			if(movementStateArray.movement_array.includes('right')) {
 				Matter.Body.applyForce(
 					penguin,
@@ -283,7 +284,7 @@ export default function Penguin() {
 			isStatic: true,
 			friction: 0,
 			render: {
-				fillStyle: 'light blue',
+				fillStyle: 'rgba(255, 99, 71, 0)',
 			},
 		})
 
@@ -291,7 +292,7 @@ export default function Penguin() {
 			isStatic: true,
 			friction: 0,
 			render: {
-				fillStyle: 'red'
+				fillStyle: 'light blue'
 			}
 		})
 
