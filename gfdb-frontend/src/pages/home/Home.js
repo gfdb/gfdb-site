@@ -22,7 +22,7 @@ var loaded_sprites = preload_sprites([
 	LETTER_PATH + "r.png",
 	LETTER_PATH + "t.png",
 	LETTER_PATH + "u.png",
-])
+], true)
 
 const STATIC_DENSITY = 15
 
@@ -65,7 +65,11 @@ const Home = () => {
 				fillStyle: 'light blue',
 			},
 		}))
-		let letter_x_pos = 100
+		let letter_x_pos = 250
+		let letter_y_pos = 200
+		const LETTER_SPACING = 10
+		const LETTER_HEIGHT_REF = 47.1
+		let prev_img = null
 
 
 		for (let i = 0; i < MY_NAME.length; i++) {
@@ -73,18 +77,40 @@ const Home = () => {
 				letter_x_pos += 40
 				continue
 			}
-			body_list.push(Bodies.rectangle(letter_x_pos, 300, 50, 50, {
-				isStatic: false,
-				friction: 0,
-				render: {
-					sprite: {
-						texture: loaded_sprites[LETTER_PATH + MY_NAME.charAt(i) + '.png'],
-						xScale: 0.2,
-						yScale: 0.2
-					}
-				},
-			}))
-			letter_x_pos += 50
+			let current_img = loaded_sprites[LETTER_PATH + MY_NAME.charAt(i) + '.png']
+			/*  in order to maintain consistent letter spacing we take the
+			*	horizontal radius of each rectangle and add the constant
+			*	letter spacing to it. We do this because the x position
+			* 	of a body in space is its center point.
+			*/
+			if (prev_img)
+				letter_x_pos += (prev_img.width*0.1)/2 + (current_img.width*0.1)/2 + LETTER_SPACING
+
+			if (current_img.height*0.1 !== LETTER_HEIGHT_REF)
+				letter_y_pos += LETTER_HEIGHT_REF-(current_img.height*0.1)
+
+			
+			body_list.push(
+				Bodies.rectangle(
+						letter_x_pos,
+						letter_y_pos + (current_img.height*0.1 / 2), 
+						current_img.width*0.1, 
+						current_img.height*0.1, 
+						{
+							isStatic: false,
+							friction: 0,
+							render: {
+								sprite: {
+									texture: current_img.src,
+									xScale: 0.1,
+									yScale: 0.1
+								}
+							},
+							restitution: 0.8
+						}
+					))
+			letter_y_pos = 200
+			prev_img = current_img
 		}
 
 		// const wall_left = Bodies.rectangle(0, 100, 1, 10000, {
