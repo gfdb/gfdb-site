@@ -1,7 +1,28 @@
 import './home.scss';
 import { useEffect, useRef, useState } from 'react';
 import Matter, { use } from 'matter-js'
+import { preload_sprites } from '../../helpers';
 
+const MY_NAME = 'Gianfranco Dumoulin Bertucci'
+const LETTER_PATH = '/letters/'
+
+var loaded_sprites = preload_sprites([
+	LETTER_PATH + "a.png",
+	LETTER_PATH + "B.png",
+	LETTER_PATH + "c.png",
+	LETTER_PATH + "D.png",
+	LETTER_PATH + "e.png",
+	LETTER_PATH + "f.png",
+	LETTER_PATH + "G.png",
+	LETTER_PATH + "i.png",
+	LETTER_PATH + "l.png",
+	LETTER_PATH + "m.png",
+	LETTER_PATH + "n.png",
+	LETTER_PATH + "o.png",
+	LETTER_PATH + "r.png",
+	LETTER_PATH + "t.png",
+	LETTER_PATH + "u.png",
+])
 
 const STATIC_DENSITY = 15
 
@@ -34,13 +55,37 @@ const Home = () => {
 			},
 		})
 
-		const floor = Bodies.rectangle(0, 1000, 0, 100, {
+		let body_list = []
+
+		body_list.push(Bodies.rectangle(0, 1000, 0, 100, {
 			isStatic: true,
+			label: "floor",
 			friction: 0,
 			render: {
 				fillStyle: 'light blue',
 			},
-		})
+		}))
+		let letter_x_pos = 100
+
+
+		for (let i = 0; i < MY_NAME.length; i++) {
+			if (MY_NAME.charAt(i) === " ") {
+				letter_x_pos += 40
+				continue
+			}
+			body_list.push(Bodies.rectangle(letter_x_pos, 300, 50, 50, {
+				isStatic: false,
+				friction: 0,
+				render: {
+					sprite: {
+						texture: loaded_sprites[LETTER_PATH + MY_NAME.charAt(i) + '.png'],
+						xScale: 0.2,
+						yScale: 0.2
+					}
+				},
+			}))
+			letter_x_pos += 50
+		}
 
 		// const wall_left = Bodies.rectangle(0, 100, 1, 10000, {
 		// 	isStatic: true,
@@ -66,7 +111,7 @@ const Home = () => {
 		//   },
 		// })
 
-		World.add(engine.world, [floor])
+		World.add(engine.world, body_list)
 		// World.add(engine.world, [wall_left])
 		// World.add(engine.world, [wall_right])
 		// World.add(engine.world, [ceiling])
@@ -105,6 +150,8 @@ const Home = () => {
 			
 			const floor = scene.engine.world.bodies[0]
 
+			// const letter_g = scene.engine.world.bodies[1]
+
 			// const wall_left = scene.engine.world.bodies[1]
 
 			// const wall_right = scene.engine.world.bodies[2]
@@ -123,6 +170,8 @@ const Home = () => {
 				{ x: width*2, y: height + STATIC_DENSITY },
 				{ x: 0, y: height + STATIC_DENSITY },
 			])
+
+
 
 			// Matter.Body.setPosition(wall_right, {
 			// 	x: width + 100,
