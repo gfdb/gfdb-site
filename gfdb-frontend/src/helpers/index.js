@@ -1,8 +1,9 @@
 
 function trim_url_domain(url_to_trim) {
 	/* 
-	  since the body's texture is already loaded it has the https://domain_name
-	  in it, so the following is to remove that before we compare paths
+		Accepts a url and returns the url stripped of the http/domain_name
+		since the body's texture is already loaded it has https://domain_name
+		in it, so the following is to remove that before comparing strings
 	*/
 	if (url_to_trim === undefined)
 		return url_to_trim
@@ -13,7 +14,7 @@ function trim_url_domain(url_to_trim) {
 	const tmp_path = window.location.pathname
 
 	if (tmp_path === '/')
-		// we are on the homepage
+		// we are on the homepage (we remove the '/')
 		tmp_url = tmp_url.slice(0, -1)
 	else
 		// we are somewhere else
@@ -22,16 +23,27 @@ function trim_url_domain(url_to_trim) {
 	return url_to_trim.replace(tmp_url, '') 
 }
 
-// urls have to be preloaded
-function load_image(url) {
-	var img = new Image()
+function load_image(url, return_image_obj = false) {
+	/*  loads an image and returns the loaded url or optionally the
+		image object
+	*/
+	let img = new Image()
 	img.src = url
+	if (return_image_obj)
+		return img
 	return img.src
 }
 
-function preload_sprites(arr_sprite_urls) {
+function preload_sprites(arr_sprite_urls, return_img_obj = false) {
+	/* Accepts an array of image paths and returns a dictionary with a
+	   structure of {given_path:loaded_image_url}, optionally return_img_obj
+	   can be passed to return loaded image objects in place of the url
+	*/
 	let loaded_sprites = new Object()
-	arr_sprite_urls.forEach(sprite_url => loaded_sprites[sprite_url] = load_image(sprite_url))
+	if (return_img_obj)
+		arr_sprite_urls.forEach(sprite_url => loaded_sprites[sprite_url] = load_image(sprite_url, true))
+	else
+		arr_sprite_urls.forEach(sprite_url => loaded_sprites[sprite_url] = load_image(sprite_url))
 	return loaded_sprites
 }
 
