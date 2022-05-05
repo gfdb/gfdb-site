@@ -1,6 +1,6 @@
 import './home.scss';
 import { useEffect, useRef, useState } from 'react';
-import Matter, { use } from 'matter-js'
+import Matter from 'matter-js'
 import { preload_sprites } from '../../helpers';
 
 const MY_NAME = 'Gianfranco Dumoulin Bertucci'
@@ -32,10 +32,15 @@ const Home = () => {
 	const canvasRef = useRef(null)
 	const [constraints, setContraints] = useState()
 	const [scene, setScene] = useState()
+	const [gravity, setGravityToggle] = useState(false)
 
 	const handleResize = () => {
 		setContraints(boxRef.current.getBoundingClientRect())
 	}
+
+	const invertGravity = () => {scene.engine.graivty.y *= -1}
+	const toggleGravity = () => {}
+
 
 	useEffect(() => {
 		let Engine = Matter.Engine
@@ -60,59 +65,13 @@ const Home = () => {
 		body_list.push(Bodies.rectangle(0, 1000, 0, 100, {
 			isStatic: true,
 			label: "floor",
+			restitution: 0.9,
 			friction: 0,
 			render: {
 				fillStyle: 'light blue',
 			},
 		}))
-		let letter_x_pos = 250
-		let letter_y_pos = 200
-		const LETTER_SPACING = 10
-		const LETTER_HEIGHT_REF = 47.1
-		let prev_img = null
-
-
-		for (let i = 0; i < MY_NAME.length; i++) {
-			if (MY_NAME.charAt(i) === " ") {
-				letter_x_pos += 40
-				continue
-			}
-			let current_img = loaded_sprites[LETTER_PATH + MY_NAME.charAt(i) + '.png']
-			/*  in order to maintain consistent letter spacing we take the
-			*	horizontal radius of each rectangle and add the constant
-			*	letter spacing to it. We do this because the x position
-			* 	of a body in space is its center point.
-			*/
-			if (prev_img)
-				letter_x_pos += (prev_img.width*0.1)/2 + (current_img.width*0.1)/2 + LETTER_SPACING
-
-			if (current_img.height*0.1 !== LETTER_HEIGHT_REF)
-				letter_y_pos += LETTER_HEIGHT_REF-(current_img.height*0.1)
-
-			
-			body_list.push(
-				Bodies.rectangle(
-						letter_x_pos,
-						letter_y_pos + (current_img.height*0.1 / 2), 
-						current_img.width*0.1, 
-						current_img.height*0.1, 
-						{
-							isStatic: false,
-							friction: 0,
-							render: {
-								sprite: {
-									texture: current_img.src,
-									xScale: 0.1,
-									yScale: 0.1
-								}
-							},
-							restitution: 0.8
-						}
-					))
-			letter_y_pos = 200
-			prev_img = current_img
-		}
-
+		
 		// const wall_left = Bodies.rectangle(0, 100, 1, 10000, {
 		// 	isStatic: true,
 		// 	friction: 0,
@@ -149,6 +108,7 @@ const Home = () => {
 
 		setContraints(boxRef.current.getBoundingClientRect())
 		setScene(render)
+		console.log("scene has been set")
 
 		window.addEventListener('resize', handleResize)
 
@@ -176,6 +136,73 @@ const Home = () => {
 			
 			const floor = scene.engine.world.bodies[0]
 
+			let letter_x_pos = width/4
+			let letter_y_pos = height/4
+			const LETTER_SPACING = 10
+			let letter_heigh_ref = null
+			let prev_letter = null
+
+			for (let i = 0; i < MY_NAME.length; i++) {
+				if (MY_NAME.charAt(i) === " ") {
+					letter_x_pos += 25
+					continue
+				}
+				let current_img = loaded_sprites[LETTER_PATH + MY_NAME.charAt(i) + '.png']
+				let curr_height = current_img.height * 0.1
+				let curr_width = current_img.width * 0.1
+
+				if (!letter_heigh_ref)
+					letter_heigh_ref = curr_height
+
+				let curr_horizontal_radius = curr_width/2
+				let curr_vertical_radius = curr_height/2
+				/*  in order to maintain consistent letter spacing I take the
+				*	horizontal radius of each rectangle and add the constant
+				*	letter spacing to it. I do this because the x position
+				* 	of a body in space is its center point.
+				*/
+				if (prev_letter)
+					letter_x_pos += (prev_letter.width*0.1)/2 + curr_horizontal_radius + LETTER_SPACING
+
+				if (current_img.height !== letter_heigh_ref)
+					letter_y_pos += letter_heigh_ref - curr_height + curr_vertical_radius
+
+				
+				let letter_body = Matter.Bodies.rectangle(
+					letter_x_pos,
+					letter_y_pos, 
+					curr_width,
+					curr_height,
+					{
+						isStatic: false,
+						friction: 0,
+						render: {
+							sprite: {
+								texture: current_img.src,
+								xScale: 0.1,
+								yScale: 0.1
+							}
+						},
+						restitution: 0.9,
+						label: "letter"
+					}
+				)
+				Matter.World.add(scene.engine.world, letter_body)
+				
+				let x_pos = current_img.width
+				
+				// Matter.Body.setVertices(letter_body, [
+				// 	Matter.Vector.create(letter_x_pos-),
+				// 	{ x: width*2, y: height},
+				// 	{ x: width*2, y: height + STATIC_DENSITY },
+				// 	{ x: 0, y: height + STATIC_DENSITY },
+				// ])
+
+				letter_y_pos = height/4
+				prev_letter = current_img
+			}
+
+
 			// const letter_g = scene.engine.world.bodies[1]
 
 			// const wall_left = scene.engine.world.bodies[1]
@@ -198,31 +225,17 @@ const Home = () => {
 			])
 
 
-
-			// Matter.Body.setPosition(wall_right, {
-			// 	x: width + 100,
-			// 	y: height + STATIC_DENSITY / 2
-			// })
-
-			// Matter.Body.setPosition(wall_left, {
-			// 	x: -100,
-			// 	y: height + STATIC_DENSITY / 2
-			// })
-
-			// Matter.Body.setPosition(ceiling, {
-			//   x: width / 2,
-			//   y: -5,
-			// })
-
-			// Matter.Body.setVertices(ceiling, [
-			//   { x: 0, y: 0 },
-			//   { x: width*2, y: 0},
-			//   { x: width*2, y: 1},
-			//   { x: 0, y: 1},
-			// ])
-
 		}
 	}, [scene, constraints])
+
+	useEffect(() => {
+		if (scene !== undefined) {
+			scene.engine.gravity *= -1
+			console.log(scene.engine.gravity)
+		}
+		// console.log("scene")
+		// console.log(scene)
+	}, [gravity])
 
   	return (
 		<div className='home-body'> 
@@ -240,6 +253,11 @@ const Home = () => {
 			>
 				<canvas ref={canvasRef} />
 			</div>
+			<button
+				className = 'invert-gravity-button'
+				onClick={invertGravity}>
+					Invert Gravity
+			</button>
 		</div>
   )  
 }
