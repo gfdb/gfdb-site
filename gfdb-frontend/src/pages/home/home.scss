@@ -13,3 +13,25 @@ h1, h4 {
     align-items: center;
     margin-top: 2rem;
 }
+
+.invert-gravity-button {
+    position: absolute;
+    right: 0;
+    margin-right: 1rem;
+    margin-top: 1rem;
+    background-color: #373e47;
+    color: #bacddb;
+    border-color: #bacddb;
+    font-size: 0.6rem;
+    text-transform: uppercase;
+    font-weight: 600;
+    padding: 0.6rem;
+    z-index: 3;
+}
+
+.invert-gravity-button:hover {
+    background-color: #bacddb;
+    color: #373e47;
+    border-color: #373e47;
+    cursor: pointer;
+}
