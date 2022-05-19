@@ -35,11 +35,21 @@ const Home = () => {
 	const [gravity, setGravityToggle] = useState(false)
 
 	const handleResize = () => {
-		setContraints(boxRef.current.getBoundingClientRect())
-	}
+		setContraints(boxRef.current.getBoundingClientRect())}
 
-	const invertGravity = () => {scene.engine.graivty.y *= -1}
-	const toggleGravity = () => {}
+	const toggleGravity = () => {
+		const letters = Matter.Composite.allBodies(scene.engine.world).filter(body => body.label === 'letter')
+		letters.forEach(letter => {
+			// 0.001 is default density
+			if (letter.isStatic) {
+				Matter.Body.setMass(letter, 0.001 * (letter.width * letter.height))
+				Matter.Body.setStatic(letter, false)
+			} else {
+				Matter.Body.setStatic(letter, true)
+				Matter.Body.setMass(letter, Infinity)
+			}
+		})
+	}
 
 
 	useEffect(() => {
@@ -174,7 +184,7 @@ const Home = () => {
 					curr_width,
 					curr_height,
 					{
-						isStatic: false,
+						isStatic: true,
 						friction: 0,
 						render: {
 							sprite: {
@@ -188,9 +198,36 @@ const Home = () => {
 					}
 				)
 				Matter.World.add(scene.engine.world, letter_body)
-				
-				let x_pos = current_img.width
-				
+				console.log('mass', letter_body.mass)
+
+				Matter.Body.setPosition(letter_body, {
+					x: letter_x_pos,
+					y: letter_y_pos
+				})
+
+				Matter.Body.setVertices(letter_body, [
+					{
+						// top left
+						x: letter_x_pos - curr_horizontal_radius,
+						y: letter_y_pos - curr_vertical_radius
+					},
+					{
+						// top right
+						x: letter_x_pos + curr_horizontal_radius,
+						y: letter_y_pos - curr_vertical_radius
+					},
+					{
+						// bottom right
+						x: letter_x_pos + curr_horizontal_radius,
+						y: letter_y_pos + curr_vertical_radius
+					},
+					{
+						// bottom left
+						x: letter_x_pos - curr_horizontal_radius,
+						y: letter_y_pos + curr_vertical_radius
+					},
+				])
+								
 				// Matter.Body.setVertices(letter_body, [
 				// 	Matter.Vector.create(letter_x_pos-),
 				// 	{ x: width*2, y: height},
@@ -254,9 +291,9 @@ const Home = () => {
 				<canvas ref={canvasRef} />
 			</div>
 			<button
-				className = 'invert-gravity-button'
-				onClick={invertGravity}>
-					Invert Gravity
+				className = 'toggle-gravity-button'
+				onClick={() => {toggleGravity()}}>
+					Toggle Gravity
 			</button>
 		</div>
   )  
