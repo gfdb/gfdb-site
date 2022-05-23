@@ -57,7 +57,6 @@ const Home = () => {
 		if (!scene) return
 		if (!gravityToggle) return
 		scene.engine.gravity.y *= -1
-		console.log(scene.engine.gravity)
 	}, [invertGravity])
 
 	useEffect(() => {
@@ -126,7 +125,6 @@ const Home = () => {
 
 		setContraints(boxRef.current.getBoundingClientRect())
 		setScene(render)
-		console.log("scene has been set")
 
 		window.addEventListener('resize', handleResize)
 
@@ -206,7 +204,6 @@ const Home = () => {
 					}
 				)
 				Matter.World.add(scene.engine.world, letter_body)
-				console.log('mass', letter_body.mass)
 
 				Matter.Body.setPosition(letter_body, {
 					x: letter_x_pos,
