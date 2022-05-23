@@ -1,6 +1,6 @@
 import './home.scss';
 import { useEffect, useRef, useState } from 'react';
-import Matter from 'matter-js'
+import {Engine, Render, World, Composite, Runner, Body, Bodies} from 'matter-js'
 import { preload_sprites } from '../../helpers';
 
 const MY_NAME = 'Gianfranco Dumoulin Bertucci'
@@ -40,15 +40,15 @@ const Home = () => {
 
 	useEffect(() => {
 		if (!scene) return
-		const letters = Matter.Composite.allBodies(scene.engine.world).filter(body => body.label === 'letter')
+		const letters = Composite.allBodies(scene.engine.world).filter(body => body.label === 'letter')
 		letters.forEach(letter => {
 			if (letter.isStatic) {
 				// 0.001 is default density
-				Matter.Body.setMass(letter, 0.001 * (letter.width * letter.height))
-				Matter.Body.setStatic(letter, false)
+				Body.setMass(letter, 0.001 * (letter.width * letter.height))
+				Body.setStatic(letter, false)
 			} else {
-				Matter.Body.setStatic(letter, true)
-				Matter.Body.setMass(letter, Infinity)
+				Body.setStatic(letter, true)
+				Body.setMass(letter, Infinity)
 			}
 		})
 	}, [gravityToggle])
@@ -60,11 +60,6 @@ const Home = () => {
 	}, [invertGravity])
 
 	useEffect(() => {
-		let Engine = Matter.Engine
-		let Render = Matter.Render
-		let World = Matter.World
-		let Bodies = Matter.Bodies
-
 		let engine = Engine.create({})
 
 		let render = Render.create({
@@ -76,51 +71,10 @@ const Home = () => {
 				wireframes: false,
 			},
 		})
-
-		let body_list = []
-
-		body_list.push(Bodies.rectangle(0, 1000, 0, 100, {
-			isStatic: true,
-			label: "floor",
-			restitution: 0.9,
-			friction: 0,
-			render: {
-				fillStyle: 'light blue',
-			},
-		}))
-		
-		// const wall_left = Bodies.rectangle(0, 100, 1, 10000, {
-		// 	isStatic: true,
-		// 	friction: 0,
-		// 	render: {
-		// 		fillStyle: 'red'
-		// 	}
-		// })
-
-		// const wall_right = Bodies.rectangle(0, 100, 1, 10000, {
-		// 	isStatic: true,
-		// 	friction: 0,
-		// 	render: {
-		// 		fillStyle: 'light blue'
-		// 	}
-		// })
-
-		// const ceiling = Bodies.rectangle(0, 100, 0, 100, {
-		//   isStatic: true,
-		//   friction: 0,
-		//   render: {
-		//     fillStyle: 'light blue',
-		//   },
-		// })
-
-		World.add(engine.world, body_list)
-		// World.add(engine.world, [wall_left])
-		// World.add(engine.world, [wall_right])
-		// World.add(engine.world, [ceiling])
 		
 		engine.gravity.y = 0.5
 
-		Matter.Runner.run(engine)
+		Runner.run(engine)
 		Render.run(render)
 
 		setContraints(boxRef.current.getBoundingClientRect())
@@ -148,9 +102,6 @@ const Home = () => {
 			scene.options.height = height
 			scene.canvas.width = width
 			scene.canvas.height = height
-
-			
-			const floor = scene.engine.world.bodies[0]
 
 			let letter_x_pos = width/4
 			let letter_y_pos = height/4
@@ -184,7 +135,7 @@ const Home = () => {
 					letter_y_pos += letter_heigh_ref - curr_height + curr_vertical_radius
 
 				
-				let letter_body = Matter.Bodies.rectangle(
+				let letter_body = Bodies.rectangle(
 					letter_x_pos,
 					letter_y_pos, 
 					curr_width,
@@ -203,14 +154,11 @@ const Home = () => {
 						label: "letter"
 					}
 				)
-				Matter.World.add(scene.engine.world, letter_body)
+				World.add(scene.engine.world, letter_body)
 
-				Matter.Body.setPosition(letter_body, {
-					x: letter_x_pos,
-					y: letter_y_pos
-				})
+				Body.setPosition(letter_body, {x: letter_x_pos, y: letter_y_pos})
 
-				Matter.Body.setVertices(letter_body, [
+				Body.setVertices(letter_body, [
 					{
 						// top left
 						x: letter_x_pos - curr_horizontal_radius,
@@ -232,38 +180,92 @@ const Home = () => {
 						y: letter_y_pos + curr_vertical_radius
 					},
 				])
-								
-				// Matter.Body.setVertices(letter_body, [
-				// 	Matter.Vector.create(letter_x_pos-),
-				// 	{ x: width*2, y: height},
-				// 	{ x: width*2, y: height + STATIC_DENSITY },
-				// 	{ x: 0, y: height + STATIC_DENSITY },
-				// ])
 
 				letter_y_pos = height/4
 				prev_letter = current_img
 			}
+			
+
+			const ceiling = Bodies.rectangle(0, 100, 100, 100, {
+				isStatic: true,
+				label: 'ceiling',
+				friction: 0,
+				render: {
+				  fillStyle: 'light blue',
+				},
+			})
+
+			const floor = Bodies.rectangle(0, 1000, 0, 100, {
+				isStatic: true,
+				label: "floor",
+				restitution: 0.9,
+				friction: 0,
+				render: {
+					fillStyle: 'light blue',
+				},
+			})
+
+			const wall_left = Bodies.rectangle(0, 0, 10, 1000, {
+				isStatic: true,
+				label: "floor",
+				restitution: 0.9,
+				friction: 0,
+				render: {
+					fillStyle: 'light blue',
+				},
+			})
+
+			const wall_right = Bodies.rectangle(0, 0, 10, 1000, {
+				isStatic: true,
+				label: "floor",
+				restitution: 0.9,
+				friction: 0,
+				render: {
+					fillStyle: 'light blue',
+				},
+			})
 
 
-			// const letter_g = scene.engine.world.bodies[1]
+			World.add(scene.engine.world, [ceiling, floor, wall_left, wall_right])
 
-			// const wall_left = scene.engine.world.bodies[1]
+			Body.setPosition(ceiling, {x: width / 2, y: -8})
 
-			// const wall_right = scene.engine.world.bodies[2]
-
-			// const ceiling = scene.engine.world.bodies[3]
+			Body.setVertices(ceiling, [
+				{ x: 0, y: 0 },
+				{ x: width*2, y: 0},
+				{ x: width*2, y: STATIC_DENSITY },
+				{ x: 0, y: STATIC_DENSITY },
+			])
 
 			// Dynamically update floor
-			Matter.Body.setPosition(floor, {
+			Body.setPosition(floor, {
 				x: width / 2,
 				y: height,
 			})
 
-			Matter.Body.setVertices(floor, [
+			Body.setVertices(floor, [
 				{ x: 0, y: height },
 				{ x: width*2, y: height},
 				{ x: width*2, y: height + STATIC_DENSITY },
 				{ x: 0, y: height + STATIC_DENSITY },
+			])
+
+			Body.setPosition(wall_left, {x: 0, y: height/2})
+
+			Body.setVertices(wall_left, [
+				{ x: 0, y: -8 },
+				{ x: 1, y: -8},
+				{ x: 1, y: height },
+				{ x: 0, y: height },
+			])
+
+			Body.setPosition(wall_right, {x: width, y: height/2})
+
+			Body.setVertices(wall_right, [
+				{ x: width, y: -8 },
+				{ x: width + 1, y: -8},
+				{ x: width + 1, y: height },
+				{ x: width, y: height },
 			])
 
 
