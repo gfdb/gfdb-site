@@ -32,16 +32,18 @@ const Home = () => {
 	const canvasRef = useRef(null)
 	const [constraints, setContraints] = useState()
 	const [scene, setScene] = useState()
-	const [gravity, setGravityToggle] = useState(false)
+	const [gravityToggle, setGravityToggle] = useState(false)
+	const [invertGravity, setInvertGravityToggle] = useState(false)
 
 	const handleResize = () => {
 		setContraints(boxRef.current.getBoundingClientRect())}
 
-	const toggleGravity = () => {
+	useEffect(() => {
+		if (!scene) return
 		const letters = Matter.Composite.allBodies(scene.engine.world).filter(body => body.label === 'letter')
 		letters.forEach(letter => {
-			// 0.001 is default density
 			if (letter.isStatic) {
+				// 0.001 is default density
 				Matter.Body.setMass(letter, 0.001 * (letter.width * letter.height))
 				Matter.Body.setStatic(letter, false)
 			} else {
@@ -49,8 +51,13 @@ const Home = () => {
 				Matter.Body.setMass(letter, Infinity)
 			}
 		})
-	}
+	}, [gravityToggle])
 
+	useEffect(() => {
+		if (!scene) return
+		if (!gravityToggle) return
+		scene.engine.gravity.y *= -1
+	}, [invertGravity])
 
 	useEffect(() => {
 		let Engine = Matter.Engine
@@ -118,7 +125,6 @@ const Home = () => {
 
 		setContraints(boxRef.current.getBoundingClientRect())
 		setScene(render)
-		console.log("scene has been set")
 
 		window.addEventListener('resize', handleResize)
 
@@ -198,7 +204,6 @@ const Home = () => {
 					}
 				)
 				Matter.World.add(scene.engine.world, letter_body)
-				console.log('mass', letter_body.mass)
 
 				Matter.Body.setPosition(letter_body, {
 					x: letter_x_pos,
@@ -265,15 +270,6 @@ const Home = () => {
 		}
 	}, [scene, constraints])
 
-	useEffect(() => {
-		if (scene !== undefined) {
-			scene.engine.gravity *= -1
-			console.log(scene.engine.gravity)
-		}
-		// console.log("scene")
-		// console.log(scene)
-	}, [gravity])
-
   	return (
 		<div className='home-body'> 
 			<div
@@ -290,11 +286,19 @@ const Home = () => {
 			>
 				<canvas ref={canvasRef} />
 			</div>
-			<button
-				className = 'toggle-gravity-button'
-				onClick={() => {toggleGravity()}}>
-					Toggle Gravity
-			</button>
+			<div className = 'home-page-button-group'>
+				<button
+					className = 'toggle-gravity-button'
+					onClick={() => {setGravityToggle(prevState => !prevState)}}>
+						Toggle Gravity
+				</button>
+
+				<button
+					className = 'invert-gravity-button'
+					onClick={() => {setInvertGravityToggle(prevState => !prevState)}}>
+						Invert Gravity
+				</button>
+			</div>
 		</div>
   )  
 }
