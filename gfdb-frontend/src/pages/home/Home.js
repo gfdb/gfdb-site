@@ -55,12 +55,9 @@ const Home = () => {
 
 	useEffect(() => {
 		if (!scene) return
-		const letters = Matter.Composite.allBodies(scene.engine.world).filter(body => body.label === 'letter')
-		letters.forEach(letter => {
-			letter.gravityScale *= -1
-			console.log('here')
-		})
-		
+		if (!gravityToggle) return
+		scene.engine.gravity.y *= -1
+		console.log(scene.engine.gravity)
 	}, [invertGravity])
 
 	useEffect(() => {
