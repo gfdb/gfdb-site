@@ -39,6 +39,7 @@ const Home = () => {
 		setContraints(boxRef.current.getBoundingClientRect())}
 
 	useEffect(() => {
+		if (!scene) return
 		const letters = Matter.Composite.allBodies(scene.engine.world).filter(body => body.label === 'letter')
 		letters.forEach(letter => {
 			if (letter.isStatic) {
@@ -50,11 +51,16 @@ const Home = () => {
 				Matter.Body.setMass(letter, Infinity)
 			}
 		})
-	}, [toggleGravity])
+	}, [gravityToggle])
 
 	useEffect(() => {
-		scene.engine.gravity *= -1
-		scene.engine.world.gravity *= -1
+		if (!scene) return
+		const letters = Matter.Composite.allBodies(scene.engine.world).filter(body => body.label === 'letter')
+		letters.forEach(letter => {
+			letter.gravityScale *= -1
+			console.log('here')
+		})
+		
 	}, [invertGravity])
 
 	useEffect(() => {
