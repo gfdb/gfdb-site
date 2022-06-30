@@ -47,4 +47,12 @@ function preload_sprites(arr_sprite_urls, return_img_obj = false) {
 	return loaded_sprites
 }
 
-export {trim_url_domain, preload_sprites}
+const find_body_in_array = (body_label, array) => {
+	for (let i = 0; i < array.length; i++) {
+		if (body_label === array[i].label)
+			return array[i]
+	}
+	return null
+}
+
+export {trim_url_domain, preload_sprites, find_body_in_array}

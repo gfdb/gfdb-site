@@ -1,7 +1,7 @@
 import './home.scss';
 import { useEffect, useRef, useState } from 'react';
 import {Engine, Render, World, Composite, Runner, Body, Bodies} from 'matter-js'
-import { preload_sprites } from '../../helpers';
+import { preload_sprites, find_body_in_array } from '../../helpers';
 
 const MY_NAME = 'Gianfranco Dumoulin Bertucci'
 const LETTER_PATH = '/letters/'
@@ -34,9 +34,106 @@ const Home = () => {
 	const [scene, setScene] = useState()
 	const [gravityToggle, setGravityToggle] = useState(false)
 	const [invertGravity, setInvertGravityToggle] = useState(false)
+	const [createBodySignal, setCreateBodySignal] = useState(true)
+	const [indexOfBodies, setIndicesOfBodies] = useState({})
 
 	const handleResize = () => {
 		setContraints(boxRef.current.getBoundingClientRect())}
+
+
+	useEffect(() => {
+		if (!createBodySignal) return
+		if (!constraints) return
+
+		let { width, height } = constraints
+
+		let letter_x_pos = width/4
+		let letter_y_pos = height/4
+		const LETTER_SPACING = 10
+		let letter_heigh_ref = null
+		let prev_letter = null
+
+		for (let i = 0; i < MY_NAME.length; i++) {
+			if (MY_NAME.charAt(i) === " ") {
+				letter_x_pos += 25
+				continue
+			}
+			let current_img = loaded_sprites[LETTER_PATH + MY_NAME.charAt(i) + '.png']
+			let curr_height = current_img.height * 0.1
+			let curr_width = current_img.width * 0.1
+
+			if (!letter_heigh_ref)
+				letter_heigh_ref = curr_height
+
+			let curr_horizontal_radius = curr_width/2
+			let curr_vertical_radius = curr_height/2
+			/*  in order to maintain consistent letter spacing I take the
+			*	horizontal radius of each rectangle and add the constant
+			*	letter spacing to it. I do this because the x position
+			* 	of a body in space is its center point.
+			*/
+			if (prev_letter)
+				letter_x_pos += (prev_letter.width*0.1)/2 + curr_horizontal_radius + LETTER_SPACING
+
+			if (current_img.height !== letter_heigh_ref)
+				letter_y_pos += letter_heigh_ref - curr_height + curr_vertical_radius
+
+			
+			let letter_body = Bodies.rectangle(
+				letter_x_pos,
+				letter_y_pos, 
+				curr_width,
+				curr_height,
+				{
+					isStatic: true,
+					friction: 0,
+					render: {
+						sprite: {
+							texture: current_img.src,
+							xScale: 0.1,
+							yScale: 0.1
+						}
+					},
+					restitution: 0.9,
+					label: "letter"
+				}
+			)
+			World.add(scene.engine.world, letter_body)
+
+			Body.setPosition(letter_body, {x: letter_x_pos, y: letter_y_pos})
+
+			Body.setVertices(letter_body, [
+				{
+					// top left
+					x: letter_x_pos - curr_horizontal_radius,
+					y: letter_y_pos - curr_vertical_radius
+				},
+				{
+					// top right
+					x: letter_x_pos + curr_horizontal_radius,
+					y: letter_y_pos - curr_vertical_radius
+				},
+				{
+					// bottom right
+					x: letter_x_pos + curr_horizontal_radius,
+					y: letter_y_pos + curr_vertical_radius
+				},
+				{
+					// bottom left
+					x: letter_x_pos - curr_horizontal_radius,
+					y: letter_y_pos + curr_vertical_radius
+				},
+			])
+
+			letter_y_pos = height/4
+			prev_letter = current_img
+		}
+
+		
+
+
+		setCreateBodySignal(false)
+	}, [createBodySignal])
 
 	useEffect(() => {
 		if (!scene) return
@@ -68,11 +165,61 @@ const Home = () => {
 			canvas: canvasRef.current,
 			options: {
 				background: 'light blue',
-				wireframes: false,
+				wireframes: true,
 			},
 		})
 		
 		engine.gravity.y = 0.5
+
+				
+
+		const ceiling = Bodies.rectangle(0, 100, 100, 100, {
+			isStatic: true,
+			label: 'ceiling',
+			friction: 0,
+			render: {
+				fillStyle: 'light blue',
+			},
+		})
+
+		const floor = Bodies.rectangle(0, 1000, 0, 100, {
+			isStatic: true,
+			label: "floor",
+			restitution: 0.9,
+			friction: 0,
+			render: {
+				fillStyle: 'light blue',
+			},
+		})
+
+		const wall_left = Bodies.rectangle(0, 0, 10, 1000, {
+			isStatic: true,
+			label: "wall_left",
+			restitution: 0.9,
+			friction: 0,
+			render: {
+				fillStyle: 'light blue',
+			},
+		})
+
+		const wall_right = Bodies.rectangle(0, 0, 10, 1000, {
+			isStatic: true,
+			label: "wall_right",
+			restitution: 0.9,
+			friction: 0,
+			render: {
+				fillStyle: 'light blue',
+			},
+		})
+
+		let initial_length = 0
+
+		World.add(engine.world, [ceiling, floor, wall_left, wall_right])
+
+		setIndicesOfBodies(indexOfBodies => ({...indexOfBodies, 'ceiling': initial_length++}))
+		setIndicesOfBodies(indexOfBodies => ({...indexOfBodies, 'floor': initial_length++}))
+		setIndicesOfBodies(indexOfBodies => ({...indexOfBodies, 'wall_left': initial_length++}))
+		setIndicesOfBodies(indexOfBodies => ({...indexOfBodies, 'wall_right': initial_length++}))
 
 		Runner.run(engine)
 		Render.run(render)
@@ -103,130 +250,15 @@ const Home = () => {
 			scene.canvas.width = width
 			scene.canvas.height = height
 
-			let letter_x_pos = width/4
-			let letter_y_pos = height/4
-			const LETTER_SPACING = 10
-			let letter_heigh_ref = null
-			let prev_letter = null
-
-			for (let i = 0; i < MY_NAME.length; i++) {
-				if (MY_NAME.charAt(i) === " ") {
-					letter_x_pos += 25
-					continue
-				}
-				let current_img = loaded_sprites[LETTER_PATH + MY_NAME.charAt(i) + '.png']
-				let curr_height = current_img.height * 0.1
-				let curr_width = current_img.width * 0.1
-
-				if (!letter_heigh_ref)
-					letter_heigh_ref = curr_height
-
-				let curr_horizontal_radius = curr_width/2
-				let curr_vertical_radius = curr_height/2
-				/*  in order to maintain consistent letter spacing I take the
-				*	horizontal radius of each rectangle and add the constant
-				*	letter spacing to it. I do this because the x position
-				* 	of a body in space is its center point.
-				*/
-				if (prev_letter)
-					letter_x_pos += (prev_letter.width*0.1)/2 + curr_horizontal_radius + LETTER_SPACING
-
-				if (current_img.height !== letter_heigh_ref)
-					letter_y_pos += letter_heigh_ref - curr_height + curr_vertical_radius
-
-				
-				let letter_body = Bodies.rectangle(
-					letter_x_pos,
-					letter_y_pos, 
-					curr_width,
-					curr_height,
-					{
-						isStatic: true,
-						friction: 0,
-						render: {
-							sprite: {
-								texture: current_img.src,
-								xScale: 0.1,
-								yScale: 0.1
-							}
-						},
-						restitution: 0.9,
-						label: "letter"
-					}
-				)
-				World.add(scene.engine.world, letter_body)
-
-				Body.setPosition(letter_body, {x: letter_x_pos, y: letter_y_pos})
-
-				Body.setVertices(letter_body, [
-					{
-						// top left
-						x: letter_x_pos - curr_horizontal_radius,
-						y: letter_y_pos - curr_vertical_radius
-					},
-					{
-						// top right
-						x: letter_x_pos + curr_horizontal_radius,
-						y: letter_y_pos - curr_vertical_radius
-					},
-					{
-						// bottom right
-						x: letter_x_pos + curr_horizontal_radius,
-						y: letter_y_pos + curr_vertical_radius
-					},
-					{
-						// bottom left
-						x: letter_x_pos - curr_horizontal_radius,
-						y: letter_y_pos + curr_vertical_radius
-					},
-				])
-
-				letter_y_pos = height/4
-				prev_letter = current_img
-			}
-			
-
-			const ceiling = Bodies.rectangle(0, 100, 100, 100, {
-				isStatic: true,
-				label: 'ceiling',
-				friction: 0,
-				render: {
-				  fillStyle: 'light blue',
-				},
-			})
-
-			const floor = Bodies.rectangle(0, 1000, 0, 100, {
-				isStatic: true,
-				label: "floor",
-				restitution: 0.9,
-				friction: 0,
-				render: {
-					fillStyle: 'light blue',
-				},
-			})
-
-			const wall_left = Bodies.rectangle(0, 0, 10, 1000, {
-				isStatic: true,
-				label: "floor",
-				restitution: 0.9,
-				friction: 0,
-				render: {
-					fillStyle: 'light blue',
-				},
-			})
-
-			const wall_right = Bodies.rectangle(0, 0, 10, 1000, {
-				isStatic: true,
-				label: "floor",
-				restitution: 0.9,
-				friction: 0,
-				render: {
-					fillStyle: 'light blue',
-				},
-			})
+			if (createBodySignal)
+				setCreateBodySignal(false)
 
 
-			World.add(scene.engine.world, [ceiling, floor, wall_left, wall_right])
+			let ceiling = scene.engine.world.bodies[indexOfBodies['ceiling']]
+			let floor = scene.engine.world.bodies[indexOfBodies['floor']]
+			let wall_left = scene.engine.world.bodies[indexOfBodies['wall_left']]
+			let wall_right = scene.engine.world.bodies[indexOfBodies['wall_right']]
+
 
 			Body.setPosition(ceiling, {x: width / 2, y: -8})
 
@@ -236,38 +268,37 @@ const Home = () => {
 				{ x: width*2, y: STATIC_DENSITY },
 				{ x: 0, y: STATIC_DENSITY },
 			])
-
+	
 			// Dynamically update floor
 			Body.setPosition(floor, {
 				x: width / 2,
 				y: height,
 			})
-
+	
 			Body.setVertices(floor, [
 				{ x: 0, y: height },
 				{ x: width*2, y: height},
 				{ x: width*2, y: height + STATIC_DENSITY },
 				{ x: 0, y: height + STATIC_DENSITY },
 			])
-
+	
 			Body.setPosition(wall_left, {x: 0, y: height/2})
-
+	
 			Body.setVertices(wall_left, [
 				{ x: 0, y: -8 },
 				{ x: 1, y: -8},
 				{ x: 1, y: height },
 				{ x: 0, y: height },
 			])
-
+	
 			Body.setPosition(wall_right, {x: width, y: height/2})
-
+	
 			Body.setVertices(wall_right, [
 				{ x: width, y: -8 },
 				{ x: width + 1, y: -8},
 				{ x: width + 1, y: height },
 				{ x: width, y: height },
 			])
-
 
 		}
 	}, [scene, constraints])
