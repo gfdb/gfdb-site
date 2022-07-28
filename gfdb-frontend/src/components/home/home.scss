@@ -1,0 +1,49 @@
+h1, h4 {
+    margin: 0.5rem 0.5rem;
+    text-align: center;
+}
+
+.home-content {
+    height: 30vw;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    // flex-direction: column;
+    align-items: center;
+    margin-top: 2rem;
+}
+
+.home-page-button-group {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    margin-right: 0.5rem;
+    padding-top: 0.5rem;
+    gap: 6px;
+
+}
+
+.home-page-button-group button {
+    position: relative;
+    right: 0;
+    background-color: #171823;
+    color: #bacddb;
+    border-color: #bacddb;
+    font-size: 0.6rem;
+    text-transform: uppercase;
+    font-weight: 600;
+    padding: 0.6rem;
+    z-index: 3;
+    min-width: 8rem;
+    max-width: 8rem;
+    border-radius: 16px;
+}
+
+.home-page-button-group button:hover {
+    background-color: #bacddb;
+    color: #171823;
+    border-color: #171823;
+    cursor: pointer;
+    font-size: 0.74rem;
+}
