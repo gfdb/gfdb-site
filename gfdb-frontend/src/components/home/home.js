@@ -1,5 +1,5 @@
-import './home.scss';
-import { useEffect, useRef, useState } from 'react';
+import './home.scss'
+import { useEffect, useRef, useState } from 'react'
 import { Engine, Render, Composite, World, Runner, Body, Bodies, Vertices} from 'matter-js'
 
 const MY_NAME = 'Gianfranco Dumoulin Bertucci'

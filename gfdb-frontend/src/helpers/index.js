@@ -7,7 +7,7 @@ function trim_url_domain(url_to_trim) {
 	*/
 	if (url_to_trim === undefined)
 		return url_to_trim
-	if (!url_to_trim.includes("http"))
+	if (!url_to_trim.includes('http'))
 		return url_to_trim
 	
 	let tmp_url = window.location.href
@@ -34,14 +34,29 @@ function load_image(url, return_image_obj = false) {
 	return img.src
 }
 
+const loadImage = (url) => {
+	return new Promise((resolve, reject) => {
+		const img = new Image()
+		img.src = url
+		let imgObj = {}
+		imgObj[url] =img
+		img.onload = () => resolve(imgObj)
+		img.onerror = () => reject(imgObj)
+	})
+}
+
 function preload_sprites(arr_sprite_urls, return_img_obj = false) {
 	/* Accepts an array of image paths and returns a dictionary with a
 	   structure of {given_path:loaded_image_url}, optionally return_img_obj
 	   can be passed to return loaded image objects in place of the url
 	*/
-	let loaded_sprites = new Object()
+	console.log('loading sprites...')
+	let loaded_sprites = {}
 	if (return_img_obj)
-		arr_sprite_urls.forEach(sprite_url => loaded_sprites[sprite_url] = load_image(sprite_url, true))
+		arr_sprite_urls.forEach(sprite_url => {
+			console.log('here', sprite_url)
+			loaded_sprites[sprite_url] = load_image(sprite_url, true)}
+		)
 	else
 		arr_sprite_urls.forEach(sprite_url => loaded_sprites[sprite_url] = load_image(sprite_url))
 	return loaded_sprites
@@ -55,4 +70,4 @@ const find_body_in_array = (body_label, array) => {
 	return null
 }
 
-export {trim_url_domain, preload_sprites, find_body_in_array}
+export {trim_url_domain, preload_sprites, find_body_in_array, loadImage}

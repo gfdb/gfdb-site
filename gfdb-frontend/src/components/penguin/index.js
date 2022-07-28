@@ -1,25 +1,25 @@
 import React, { useEffect, useState, useRef } from 'react'
-import Matter, { use } from 'matter-js'
-import { use_event } from '../hooks';
-import { trim_url_domain, preload_sprites } from '../../helpers';
+import Matter from 'matter-js'
+import { use_event } from '../hooks'
+import { trim_url_domain, preload_sprites } from '../../helpers'
 import './penguin.scss'
 
 const STATIC_DENSITY = 15
 
-const SPRITE_PATH_RIGHT = "/penguin/right"
-const SPRITE_PATH_LEFT = "/penguin/left"
+const SPRITE_PATH_RIGHT = '/penguin/right'
+const SPRITE_PATH_LEFT = '/penguin/left'
 
-const DEFAULT_SPRITE = "/penguin_walk01.png"
+const DEFAULT_SPRITE = '/penguin_walk01.png'
 
 const SLIDE_ANIMATION = [
-	"/penguin_slide01.png",
-	"/penguin_slide02.png"
+	'/penguin_slide01.png',
+	'/penguin_slide02.png'
 ]
 
 const JUMP_ANIMATION = [
-	"/penguin_jump01.png",
-	"/penguin_jump02.png",
-	"/penguin_jump03.png"
+	'/penguin_jump01.png',
+	'/penguin_jump02.png',
+	'/penguin_jump03.png'
 ]
 
 var loaded_sprites = preload_sprites([
@@ -103,11 +103,11 @@ export default function Penguin() {
 							switch (current_texture) {
 								case (sprite_to_apply + SLIDE_ANIMATION[1]):
 									sprite_to_apply += SLIDE_ANIMATION[0]
-									break;
+									break
 
 								case (sprite_to_apply + SLIDE_ANIMATION[0]):
 									sprite_to_apply += DEFAULT_SPRITE
-									break;
+									break
 
 								default:
 									sprite_to_apply = current_texture
@@ -122,7 +122,7 @@ export default function Penguin() {
 					}
 				}
 			}, 35)
-			return () => clearInterval(interval);
+			return () => clearInterval(interval)
 		}
 		
 	}, [spawn_character])
@@ -150,13 +150,13 @@ export default function Penguin() {
 					switch(current_texture) {
 						case (sprite_to_apply + DEFAULT_SPRITE):
 							sprite_to_apply += SLIDE_ANIMATION[0]
-							break;
+							break
 						case (sprite_to_apply + SLIDE_ANIMATION[0]):
 							sprite_to_apply += SLIDE_ANIMATION[1]
-							break;
+							break
 						case (sprite_to_apply + SLIDE_ANIMATION[1]):
 							sprite_to_apply += SLIDE_ANIMATION[1]
-							break;
+							break
 						default:
 							sprite_to_apply += DEFAULT_SPRITE
 					}
@@ -196,7 +196,7 @@ export default function Penguin() {
 			if (!movementStateArray.movement_array.includes('left'))
 				temp_movement_array.push('left')
 		}
-	};
+	}
 
 	const handleKeyUp = (e) => {
 
@@ -219,10 +219,10 @@ export default function Penguin() {
 			temp_movement_array.splice(index, 1)
 			setMovementArray({ movement_array: temp_movement_array })
 		}
-	};
+	}
 
-	use_event('keydown', handleKeyDown);
-	use_event('keyup', handleKeyUp);
+	use_event('keydown', handleKeyDown)
+	use_event('keyup', handleKeyUp)
 
 
 	useEffect(() => {
@@ -284,7 +284,7 @@ export default function Penguin() {
 			isStatic: true,
 			friction: 0,
 			render: {
-				fillStyle: 'rgba(255, 99, 71, 0)',
+				fillStyle: '#272b33',
 			},
 		})
 
@@ -292,7 +292,7 @@ export default function Penguin() {
 			isStatic: true,
 			friction: 0,
 			render: {
-				fillStyle: 'light blue'
+				fillStyle: '#272b33'
 			}
 		})
 
@@ -300,7 +300,7 @@ export default function Penguin() {
 			isStatic: true,
 			friction: 0,
 			render: {
-				fillStyle: 'light blue'
+				fillStyle: '#272b33'
 			}
 		})
 
@@ -308,7 +308,7 @@ export default function Penguin() {
 		//   isStatic: true,
 		//   friction: 0,
 		//   render: {
-		//     fillStyle: 'light blue',
+		//     fillStyle: '#272b33',
 		//   },
 		// })
 
@@ -395,6 +395,8 @@ export default function Penguin() {
 			// spawn character into the game
 			if (spawn_character) {
 				spawnCharacter(false)
+			} else {
+				Matter.Body.setPosition()
 			}
 		}
 	}, [scene, constraints])
@@ -418,6 +420,8 @@ export default function Penguin() {
 				}
 			)
 			Matter.World.add(scene.engine.world, penguin)
+
+			console.log('penguin', penguin.vertices)
 
 
 			
