@@ -1,28 +1,28 @@
 import './nav.scss'
-import Penguin from "../../components/penguin/index"
-import { Outlet, Link } from "react-router-dom";
+import Penguin from '../../components/penguin/index'
+import { Outlet, Link } from 'react-router-dom'
 
 export default function Nav() {
     return (
         <>
             <div className='navbar'>
                 <nav 
-                    className="stroke"
+                    className='stroke'
                 >
                     <ul style={{
-                        listStyleType: "none"
+                        listStyleType: 'none'
                     }}>
                         <li>
-                            <Link to = "/">Home</Link>
+                            <Link to = '/'>Home</Link>
                         </li>
                         <li>
-                            <Link to = "/work-experience">Work Experience</Link>
+                            <Link to = '/work-experience'>Work Experience</Link>
                         </li>
                         <li>
-                            <Link to = "/education">Education</Link>
+                            <Link to = '/education'>Education</Link>
                         </li>
                         <li>
-                            <Link to = "/games">Games</Link>
+                            <Link to = '/games'>Games</Link>
                         </li>
                     </ul>
                 </nav>
