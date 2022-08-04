@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useRef } from 'react'
 import Matter from 'matter-js'
 import { use_event } from '../hooks'
-import { trim_url_domain, preload_sprites } from '../../helpers'
+import { trim_url_domain, preload_sprites, find_body_in_array} from '../../helpers'
 import './penguin.scss'
 
 const STATIC_DENSITY = 15
@@ -380,24 +380,19 @@ export default function Penguin() {
 				y: height + STATIC_DENSITY / 2
 			})
 
-			// Matter.Body.setPosition(ceiling, {
-			//   x: width / 2,
-			//   y: -5,
-			// })
-
-			// Matter.Body.setVertices(ceiling, [
-			//   { x: 0, y: 0 },
-			//   { x: width*2, y: 0},
-			//   { x: width*2, y: 1},
-			//   { x: 0, y: 1},
-			// ])
-
+			let penguin = find_body_in_array('penguin', scene.engine.world.bodies)
 			// spawn character into the game
 			if (spawn_character) {
 				spawnCharacter(false)
 			} else {
-				Matter.Body.setPosition()
-			}
+				if (penguin.x > width || penguin.x < 0 || penguin.y > height || penguin.y < 0) {
+					Matter.Body.setPosition(penguin, {
+						x: width/2,
+						y: 2
+					})
+				}
+
+			}	
 		}
 	}, [scene, constraints])
 
@@ -416,15 +411,11 @@ export default function Penguin() {
 							xScale: 0.4,
 							yScale: 0.4
 						}
-					}
+					},
+					label: 'penguin'
 				}
 			)
 			Matter.World.add(scene.engine.world, penguin)
-
-			console.log('penguin', penguin.vertices)
-
-
-			
 		}
 	}, [spawn_character])
 
