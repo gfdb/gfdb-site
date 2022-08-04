@@ -17,7 +17,7 @@ const HomeComponent = ({loaded_sprites}) => {
 	const [constraints, setContraints] = useState()
 	const [resetWorld, setResetWorld] = useState(true)
 
-	const [gravityToggle, setGravityToggle] = useState()
+	const [gravityToggle, setGravityToggle] = useState(false)
 	const [invertGravity, setInvertGravityToggle] = useState(false)
 	const [indexOfBodies, setIndicesOfBodies] = useState({
 		ceiling: 0,
@@ -114,17 +114,17 @@ const HomeComponent = ({loaded_sprites}) => {
 
 	useEffect(() => {
 		if (!renderState) return
-			const letters = renderState.engine.world.bodies.filter(body => body.label === 'letter')
-			letters.forEach(letter => {
-				if (letter.isStatic) {
-					// 0.001 is default density
-					Body.setMass(letter, 0.001 * (letter.width * letter.height))
-					Body.setStatic(letter, false)
-				} else {
-					Body.setStatic(letter, true)
-					Body.setMass(letter, Infinity)
-				}
-			})
+		const letters = renderState.engine.world.bodies.filter(body => body.label === 'letter')
+		letters.forEach(letter => {
+			if (letter.isStatic) {
+				// 0.001 is default density
+				Body.setMass(letter, 0.001 * (letter.width * letter.height))
+				Body.setStatic(letter, false)
+			} else {
+				Body.setStatic(letter, true)
+				Body.setMass(letter, Infinity)
+			}
+		})
 	}, [gravityToggle])
 
 	useEffect(() => {
@@ -247,6 +247,7 @@ const HomeComponent = ({loaded_sprites}) => {
 				letter_x_pos += 25
 				continue
 			}
+
 			let current_img = loaded_sprites[LETTER_PATH + MY_NAME.charAt(i) + '.png']
 			let curr_height = current_img.height * 0.1
 			let curr_width = current_img.width * 0.1
@@ -341,14 +342,18 @@ const HomeComponent = ({loaded_sprites}) => {
 					className = 'toggle-gravity-button'
 					onClick={() => {setGravityToggle(gravityToggle => !gravityToggle)}}
 				>
-						Toggle Gravity
+					Toggle Gravity
 				</button>
-				<button
-					className = 'invert-gravity-button'
-					onClick={() => {setInvertGravityToggle(invertGravity => !invertGravity)}}
-				>
-					Invert Gravity
-				</button>
+				{ gravityToggle &&
+					<>
+						<button
+							className = 'invert-gravity-button'
+							onClick={() => {setInvertGravityToggle(invertGravity => !invertGravity)}}
+						>
+							Invert Gravity
+						</button>
+					</>
+				}
 				<button
 					className = 'invert-gravity-button'
 					onClick={() => {setResetWorld(resetWorld => !resetWorld)}}
