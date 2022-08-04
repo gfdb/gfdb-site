@@ -1,11 +1,7 @@
-import React, { useEffect, useState, useRef } from 'react'
+import { useEffect, useState, useRef } from 'react'
 import Matter from 'matter-js'
 import { use_event } from '../hooks'
-<<<<<<< Updated upstream
 import { trim_url_domain, preload_sprites, find_body_in_array} from '../../helpers'
-=======
-import { trim_url_domain, preload_sprites, find_body_in_array } from '../../helpers'
->>>>>>> Stashed changes
 import './penguin.scss'
 
 const STATIC_DENSITY = 15
@@ -386,7 +382,7 @@ export default function Penguin() {
 
 			let penguin = find_body_in_array('penguin', scene.engine.world.bodies)
 			// spawn character into the game
-			if (spawn_character)
+			if (spawn_character) {
 				spawnCharacter(false)
 			} else {
 				if (penguin.x > width || penguin.x < 0 || penguin.y > height || penguin.y < 0) {
@@ -424,7 +420,12 @@ export default function Penguin() {
 	}, [spawn_character])
 
 	return (
-		<div className='penguin'> 
+		<div
+			className='penguin'
+			style = {{
+				height: '100px'
+			}}
+		> 
 			<div
 				ref={boxRef}
 				style={{
@@ -432,7 +433,7 @@ export default function Penguin() {
 					top: 0,
 					left: 0,
 					width: '100%',
-					height: '10%',
+					height: '100px',
 					pointerEvents: 'none',
 				}}
 			>
