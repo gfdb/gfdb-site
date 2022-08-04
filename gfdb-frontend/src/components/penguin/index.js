@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useRef } from 'react'
+import { useEffect, useState, useRef } from 'react'
 import Matter from 'matter-js'
 import { use_event } from '../hooks'
 import { trim_url_domain, preload_sprites, find_body_in_array} from '../../helpers'
@@ -44,7 +44,7 @@ export default function Penguin() {
 	const boxRef = useRef(null)
 	const canvasRef = useRef(null)
 
-	const [constraints, setContraints] = useState()
+	const [constraints, setConstraints] = useState()
 	const [scene, setScene] = useState()
 
 	const [character_movement, setCharacterMovement] = useState(true)
@@ -57,7 +57,7 @@ export default function Penguin() {
 	const [update_sprite_flag, updateSpriteFlag] = useState(false)
 
 	const handleResize = () => {
-		setContraints(boxRef.current.getBoundingClientRect())
+		setConstraints(boxRef.current.getBoundingClientRect())
 	}
 
 	useEffect(() => {
@@ -322,7 +322,7 @@ export default function Penguin() {
 		Matter.Runner.run(engine)
 		Render.run(render)
 
-		setContraints(boxRef.current.getBoundingClientRect())
+		setConstraints(boxRef.current.getBoundingClientRect())
 		setScene(render)
 
 		window.addEventListener('resize', handleResize)
@@ -420,7 +420,12 @@ export default function Penguin() {
 	}, [spawn_character])
 
 	return (
-		<div className='penguin'> 
+		<div
+			className='penguin'
+			style = {{
+				height: '100px'
+			}}
+		> 
 			<div
 				ref={boxRef}
 				style={{
@@ -428,7 +433,7 @@ export default function Penguin() {
 					top: 0,
 					left: 0,
 					width: '100%',
-					height: '10%',
+					height: '100px',
 					pointerEvents: 'none',
 				}}
 			>
