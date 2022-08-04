@@ -46,7 +46,19 @@ const Home = () => {
 		<>
 			{ loaded_sprites ? 
 			  <HomeComponent loaded_sprites = {loaded_sprites}/>
-			: <span>Loading</span>
+			: <div style = {{
+					textAlign: 'center',
+					marginTop: '10rem'
+				}}
+			>
+				<p
+					style = {{
+						fontSize: '72px'
+					}}
+				>
+					Loading
+				</p>
+			  </div>
 			}
 		</>
 	)

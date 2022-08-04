@@ -1,7 +1,11 @@
 import React, { useEffect, useState, useRef } from 'react'
 import Matter from 'matter-js'
 import { use_event } from '../hooks'
+<<<<<<< Updated upstream
 import { trim_url_domain, preload_sprites, find_body_in_array} from '../../helpers'
+=======
+import { trim_url_domain, preload_sprites, find_body_in_array } from '../../helpers'
+>>>>>>> Stashed changes
 import './penguin.scss'
 
 const STATIC_DENSITY = 15
@@ -44,7 +48,7 @@ export default function Penguin() {
 	const boxRef = useRef(null)
 	const canvasRef = useRef(null)
 
-	const [constraints, setContraints] = useState()
+	const [constraints, setConstraints] = useState()
 	const [scene, setScene] = useState()
 
 	const [character_movement, setCharacterMovement] = useState(true)
@@ -57,7 +61,7 @@ export default function Penguin() {
 	const [update_sprite_flag, updateSpriteFlag] = useState(false)
 
 	const handleResize = () => {
-		setContraints(boxRef.current.getBoundingClientRect())
+		setConstraints(boxRef.current.getBoundingClientRect())
 	}
 
 	useEffect(() => {
@@ -322,7 +326,7 @@ export default function Penguin() {
 		Matter.Runner.run(engine)
 		Render.run(render)
 
-		setContraints(boxRef.current.getBoundingClientRect())
+		setConstraints(boxRef.current.getBoundingClientRect())
 		setScene(render)
 
 		window.addEventListener('resize', handleResize)
@@ -382,7 +386,7 @@ export default function Penguin() {
 
 			let penguin = find_body_in_array('penguin', scene.engine.world.bodies)
 			// spawn character into the game
-			if (spawn_character) {
+			if (spawn_character)
 				spawnCharacter(false)
 			} else {
 				if (penguin.x > width || penguin.x < 0 || penguin.y > height || penguin.y < 0) {
