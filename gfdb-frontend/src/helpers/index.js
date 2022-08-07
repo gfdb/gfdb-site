@@ -63,11 +63,12 @@ function preload_sprites(arr_sprite_urls, return_img_obj = false) {
 }
 
 const find_body_in_array = (body_label, array) => {
+	if (!array) return undefined
 	for (let i = 0; i < array.length; i++) {
 		if (body_label === array[i].label)
 			return array[i]
 	}
-	return null
+	return undefined
 }
 
 export {trim_url_domain, preload_sprites, find_body_in_array, loadImage}
