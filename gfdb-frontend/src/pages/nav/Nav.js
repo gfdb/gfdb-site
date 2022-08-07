@@ -54,7 +54,7 @@ export default function Nav() {
 	}, [])
 
     useEffect(() => {
-        const checkIfClickedOutside = e => {       
+        const checkIfClickedOutside = e => {
             if (showDropDown && dropDownRef?.current && !dropDownRef?.current?.contains(e.target)) {
                 setIconRotation(80)
             }
@@ -68,7 +68,6 @@ export default function Nav() {
 
 	useEffect(() => {
 		const interval = setInterval(() => {
-			console.log(iconRotation)
 			if (iconRotation === 90) {
 				setShowDropDown(true)
 				clearInterval(interval)
