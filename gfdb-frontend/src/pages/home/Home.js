@@ -3,8 +3,9 @@ import { loadImage } from '../../helpers'
 import HomeComponent from '../../components/home/home'
 
 const LETTER_PATH = '/letters/'
+const LOGO_PATH = '/logos/'
 
-const LETTER_SPRITES = [
+const SPRITES = [
 	LETTER_PATH + 'a.png',
 	LETTER_PATH + 'B.png',
 	LETTER_PATH + 'c.png',
@@ -20,6 +21,9 @@ const LETTER_SPRITES = [
 	LETTER_PATH + 'r.png',
 	LETTER_PATH + 't.png',
 	LETTER_PATH + 'u.png',
+	LOGO_PATH + 'github.png',
+	LOGO_PATH + 'linkedin.png'
+
 ]
 
 
@@ -28,7 +32,7 @@ const Home = () => {
 	const [loaded_sprites, setLoadedSprites] = useState()
 
 	useEffect(() => {
-		Promise.all(LETTER_SPRITES.map(url => loadImage(url))).then(
+		Promise.all(SPRITES.map(url => loadImage(url))).then(
 			arrayOfImageObjects => {
 				let spriteArrayOfObjects = {}
 				arrayOfImageObjects.forEach((element) => {
@@ -38,8 +42,6 @@ const Home = () => {
 			}
 		)
 	}, [])
-
-	console.log('loaded_sprites', loaded_sprites)
 
 
 	return (

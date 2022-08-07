@@ -1,10 +1,15 @@
 import './home.scss'
 import { useEffect, useRef, useState } from 'react'
 import { Engine, Render, Composite, World, Runner, Body, Bodies, Vertices} from 'matter-js'
+import { find_body_in_array } from '../../helpers'
+import { distanceBetweenTwoPoints } from '../../utils/misc'
+
 
 const MY_NAME = 'Gianfranco Dumoulin Bertucci'
 const LETTER_PATH = '/letters/'
-
+const BODY_LABELS = ['letter', 'linkedin', 'github']
+const GITHUB_URL = 'https://www.github.com/gfdb'
+const LINKEDIN_URL = 'https://www.linkedin.com/in/gianfrancodumoulinbertucci'
 
 const STATIC_DENSITY = 15
 
@@ -16,6 +21,9 @@ const HomeComponent = ({loaded_sprites}) => {
 	const [renderState, setRenderState] = useState()
 	const [constraints, setContraints] = useState()
 	const [resetWorld, setResetWorld] = useState(true)
+	const [cursorState, setCursorState] = useState('default')
+	const [mouseClickPos, setMouseClickPos] = useState({x: 0, y: 0})
+	const [mouseMovePos, setMouseMovePos] = useState({x: 0, y: 0})
 
 	const [gravityToggle, setGravityToggle] = useState(false)
 	const [invertGravity, setInvertGravityToggle] = useState(false)
@@ -30,6 +38,57 @@ const HomeComponent = ({loaded_sprites}) => {
 	const handleResize = () => {
 		setContraints(boxRef.current.getBoundingClientRect())
 	}
+
+
+	const handleMouseClick = (e) => {
+		window.removeEventListener('click', handleMouseClick)
+		if (!e) return
+		setMouseClickPos({x: e.clientX, y: e.clientY - 100})
+	}
+
+	const handleMouseMove = (e) => {
+		window.removeEventListener('mousemove', handleMouseMove)
+		if (!e) return
+		setMouseMovePos({x: e.clientX, y: e.clientY - 100})
+	}
+
+	useEffect(() => {
+		if (!renderState) return
+
+		let githubLogo = find_body_in_array('github', renderState.engine.world.bodies)
+
+		let linkedInLogo = find_body_in_array('linkedin', renderState.engine.world.bodies)
+
+		if (!githubLogo || !linkedInLogo) return
+
+		if (githubLogo.circleRadius >= distanceBetweenTwoPoints(mouseClickPos, githubLogo.position)) {
+			window.location.href = GITHUB_URL
+		} else if (linkedInLogo.circleRadius >= distanceBetweenTwoPoints(mouseClickPos, linkedInLogo.position))
+			window.location.href = LINKEDIN_URL
+		
+		window.addEventListener('click', handleMouseClick)
+
+	}, [mouseClickPos])
+
+	useEffect(() => {
+		if (!renderState) return
+
+		let githubLogo = find_body_in_array('github', renderState.engine.world.bodies)
+
+		let linkedInLogo = find_body_in_array('linkedin', renderState.engine.world.bodies)
+
+		if (!githubLogo || !linkedInLogo) return
+
+		if (githubLogo.circleRadius >= distanceBetweenTwoPoints(mouseMovePos, githubLogo.position))
+			setCursorState('pointer')
+		else if (linkedInLogo.circleRadius >= distanceBetweenTwoPoints(mouseMovePos, linkedInLogo.position))
+			setCursorState('pointer')
+		else
+			setCursorState('')
+
+
+		window.addEventListener('mousemove', handleMouseMove)
+	}, [mouseMovePos])
 
 	
 	useEffect(() => {
@@ -50,8 +109,6 @@ const HomeComponent = ({loaded_sprites}) => {
 
 		Runner.run(engine)
 		Render.run(render)
-
-		console.log('creating...')
 		
 		render.engine.gravity.y = 0.5
 				
@@ -104,6 +161,9 @@ const HomeComponent = ({loaded_sprites}) => {
 		setIndicesOfBodies(indexOfBodies => ({...indexOfBodies, wall_right: 3}))
 
 		window.addEventListener('resize', handleResize)
+		window.addEventListener('click', handleMouseClick)
+		window.addEventListener('mousemove', handleMouseMove)
+
 
 		setRenderState(render)
 
@@ -114,7 +174,7 @@ const HomeComponent = ({loaded_sprites}) => {
 
 	useEffect(() => {
 		if (!renderState) return
-		const letters = renderState.engine.world.bodies.filter(body => body.label === 'letter')
+		const letters = renderState.engine.world.bodies.filter(body => BODY_LABELS.includes(body.label))
 		letters.forEach(letter => {
 			if (letter.isStatic) {
 				// 0.001 is default density
@@ -135,7 +195,7 @@ const HomeComponent = ({loaded_sprites}) => {
 
 	useEffect(() => {
 		if (!renderState) return
-		const letters = renderState.engine.world.bodies.filter(body => body.label === 'letter')
+		const letters = renderState.engine.world.bodies.filter(body => BODY_LABELS.includes(body.label))
 		letters.forEach(letter => Composite.remove(renderState.engine.world, letter))
 		renderState.engine.gravity.y = 0.5
 		setCreateLetters(createLetters => !createLetters)
@@ -152,11 +212,7 @@ const HomeComponent = ({loaded_sprites}) => {
 
 	useEffect(() => {
 		if (constraints) {
-			// if (!renderState) return
-			console.log('constraints')
 			let { width, height } = constraints
-
-			console.log(renderState.engine.world.bodies)
 
 			// Dynamically update canvas and bounds
 			renderState.bounds.max.x = width
@@ -195,10 +251,8 @@ const HomeComponent = ({loaded_sprites}) => {
 			]
 
 			if (!floor.vertices) {
-				console.log('No vertex, creating')
 				Vertices.create(floor_vertices, floor)
 			} else {
-				console.log('Vertex found, updating')
 				Body.setVertices(floor, floor_vertices)
 			}
 	
@@ -236,7 +290,7 @@ const HomeComponent = ({loaded_sprites}) => {
 
 		let { width, height } = constraints
 
-		let letter_x_pos = width/4
+		let letter_x_pos = width/4.5
 		let letter_y_pos = height/4
 		const LETTER_SPACING = 10
 		let letter_heigh_ref = null
@@ -318,11 +372,59 @@ const HomeComponent = ({loaded_sprites}) => {
 			letter_y_pos = height/4
 			prev_letter = current_img
 		}
+
+		let linkedInLogo = Bodies.circle(
+			(width)*3/8,
+			height*1/2,
+			30,
+			{
+				isStatic: true,
+				friction: 0,
+				render: {
+					sprite: {
+						texture: loaded_sprites['/logos/linkedin.png'].src,
+						xScale: 0.5,
+						yScale: 0.5
+					}
+				},
+				restitution: 0.9,
+				label: 'linkedin'
+			}
+		)
+
+		let githubLogo = Bodies.circle(
+			(width)*5/8,
+			height*1/2,
+			30,
+			{
+				isStatic: true,
+				friction: 0,
+				render: {
+					sprite: {
+						texture: loaded_sprites['/logos/github.png'].src,
+						xScale: 0.5,
+						yScale: 0.5
+					}
+				},
+				restitution: 0.9,
+				label: 'github'
+			}
+		)
+		
+
+		World.add(renderState.engine.world, [githubLogo, linkedInLogo])
+
 		
 	}, [createLetters])
 
   	return (
-		<div className='home-body'> 
+		<div 
+			className='home-body'
+			style = {{
+				height: 'calc(100vh - 100px',
+				cursor: cursorState
+			}}
+		> 
 			<div
 				ref={boxRef}
 				style={{
@@ -332,10 +434,10 @@ const HomeComponent = ({loaded_sprites}) => {
 					width: '100%',
 					height: 'calc(100vh - 100px',
 					pointerEvents: 'none',
-					overflow: 'hidden'
+					overflow: 'hidden',
 				}}
 			>
-				<canvas ref={canvasRef} />
+				<canvas ref={canvasRef}/>
 			</div>
 			<div className = 'home-page-button-group'>
 				<button
