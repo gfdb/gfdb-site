@@ -22,7 +22,7 @@ const HomeComponent = ({loaded_sprites}) => {
 	const [constraints, setContraints] = useState()
 	const [resetWorld, setResetWorld] = useState(true)
 	const [cursorState, setCursorState] = useState('default')
-	const [mouseClickPos, setMouseClickPos] = useState({x: 0, y: 0})
+	const [mouseClickInfo, setMouseClickInfo] = useState({x: 0, y: 0, ctrlKey: undefined})
 	const [mouseMovePos, setMouseMovePos] = useState({x: 0, y: 0})
 
 	const [gravityToggle, setGravityToggle] = useState(false)
@@ -43,7 +43,8 @@ const HomeComponent = ({loaded_sprites}) => {
 	const handleMouseClick = (e) => {
 		window.removeEventListener('click', handleMouseClick)
 		if (!e) return
-		setMouseClickPos({x: e.clientX, y: e.clientY - 100})
+		e.preventDefault()
+		setMouseClickInfo({x: e.clientX, y: e.clientY - 100, ctrlKey: e.ctrlKey})
 	}
 
 	const handleMouseMove = (e) => {
@@ -61,14 +62,22 @@ const HomeComponent = ({loaded_sprites}) => {
 
 		if (!githubLogo || !linkedInLogo) return
 
-		if (githubLogo.circleRadius >= distanceBetweenTwoPoints(mouseClickPos, githubLogo.position)) {
-			window.location.href = GITHUB_URL
-		} else if (linkedInLogo.circleRadius >= distanceBetweenTwoPoints(mouseClickPos, linkedInLogo.position))
-			window.location.href = LINKEDIN_URL
-		
+		let mousePos = {x:mouseClickInfo.x, y:mouseClickInfo.y}
+
+		if (githubLogo.circleRadius >= distanceBetweenTwoPoints(mousePos, githubLogo.position)) {
+			if (mouseClickInfo.ctrlKey)
+				window.open(GITHUB_URL,'_blank')
+			else
+				window.location.href = GITHUB_URL
+		} else if (linkedInLogo.circleRadius >= distanceBetweenTwoPoints(mousePos, linkedInLogo.position)) {
+			if (mouseClickInfo.ctrlKey)
+				window.open(LINKEDIN_URL,'_blank')
+			else
+				window.location.href = LINKEDIN_URL
+		}
 		window.addEventListener('click', handleMouseClick)
 
-	}, [mouseClickPos])
+	}, [mouseClickInfo])
 
 	useEffect(() => {
 		if (!renderState) return
