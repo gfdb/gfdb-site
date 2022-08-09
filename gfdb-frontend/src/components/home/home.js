@@ -3,7 +3,8 @@ import { useEffect, useRef, useState } from 'react'
 import { Engine, Render, Composite, World, Runner, Body, Bodies, Vertices} from 'matter-js'
 import { find_body_in_array } from '../../helpers'
 import { distanceBetweenTwoPoints } from '../../utils/misc'
-
+import { useMediaQuery } from 'react-responsive'
+import { mq } from '../../utils/mq'
 
 const MY_NAME = 'Gianfranco Dumoulin Bertucci'
 const LETTER_PATH = '/letters/'
@@ -24,6 +25,7 @@ const HomeComponent = ({loaded_sprites}) => {
 	const [cursorState, setCursorState] = useState('default')
 	const [mouseClickInfo, setMouseClickInfo] = useState({x: 0, y: 0, ctrlKey: undefined})
 	const [mouseMovePos, setMouseMovePos] = useState({x: 0, y: 0})
+	const [mediaQuery, setMediaQuery] = useState(mq(useMediaQuery))
 
 	const [gravityToggle, setGravityToggle] = useState(false)
 	const [invertGravity, setInvertGravityToggle] = useState(false)
@@ -299,19 +301,27 @@ const HomeComponent = ({loaded_sprites}) => {
 
 		let { width, height } = constraints
 
-		let letter_x_pos = width/4.5
+		let letter_x_pos = width/5.5
 		let letter_y_pos = height/4
 		const LETTER_SPACING = 10
 		let letter_heigh_ref = null
 		let prev_letter = null
 
-		for (let i = 0; i < MY_NAME.length; i++) {
-			if (MY_NAME.charAt(i) === ' ') {
+		let myName = MY_NAME
+		if (mediaQuery === 1 || mediaQuery === 2)
+			myName = 'Gianfranco'
+		if (mediaQuery === 1)
+			letter_x_pos = width/8
+		if (mediaQuery === 2)
+			letter_x_pos = width*3.2/10
+
+		for (let i = 0; i < myName.length; i++) {
+			if (myName.charAt(i) === ' ') {
 				letter_x_pos += 25
 				continue
 			}
 
-			let current_img = loaded_sprites[LETTER_PATH + MY_NAME.charAt(i) + '.png']
+			let current_img = loaded_sprites[LETTER_PATH + myName.charAt(i) + '.png']
 			let curr_height = current_img.height * 0.1
 			let curr_width = current_img.width * 0.1
 
