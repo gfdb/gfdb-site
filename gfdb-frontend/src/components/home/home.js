@@ -3,7 +3,8 @@ import { useEffect, useRef, useState } from 'react'
 import { Engine, Render, Composite, World, Runner, Body, Bodies, Vertices} from 'matter-js'
 import { find_body_in_array } from '../../helpers'
 import { distanceBetweenTwoPoints } from '../../utils/misc'
-
+import { useMediaQuery } from 'react-responsive'
+import { mq } from '../../utils/mq'
 
 const MY_NAME = 'Gianfranco Dumoulin Bertucci'
 const LETTER_PATH = '/letters/'
@@ -22,7 +23,7 @@ const HomeComponent = ({loaded_sprites}) => {
 	const [constraints, setContraints] = useState()
 	const [resetWorld, setResetWorld] = useState(true)
 	const [cursorState, setCursorState] = useState('default')
-	const [mouseClickPos, setMouseClickPos] = useState({x: 0, y: 0})
+	const [mouseClickInfo, setMouseClickInfo] = useState({x: 0, y: 0, ctrlKey: undefined})
 	const [mouseMovePos, setMouseMovePos] = useState({x: 0, y: 0})
 
 	const [gravityToggle, setGravityToggle] = useState(false)
@@ -43,7 +44,8 @@ const HomeComponent = ({loaded_sprites}) => {
 	const handleMouseClick = (e) => {
 		window.removeEventListener('click', handleMouseClick)
 		if (!e) return
-		setMouseClickPos({x: e.clientX, y: e.clientY - 100})
+		e.preventDefault()
+		setMouseClickInfo({x: e.clientX, y: e.clientY - 100, ctrlKey: e.ctrlKey})
 	}
 
 	const handleMouseMove = (e) => {
@@ -61,14 +63,22 @@ const HomeComponent = ({loaded_sprites}) => {
 
 		if (!githubLogo || !linkedInLogo) return
 
-		if (githubLogo.circleRadius >= distanceBetweenTwoPoints(mouseClickPos, githubLogo.position)) {
-			window.location.href = GITHUB_URL
-		} else if (linkedInLogo.circleRadius >= distanceBetweenTwoPoints(mouseClickPos, linkedInLogo.position))
-			window.location.href = LINKEDIN_URL
-		
+		let mousePos = {x:mouseClickInfo.x, y:mouseClickInfo.y}
+
+		if (githubLogo.circleRadius >= distanceBetweenTwoPoints(mousePos, githubLogo.position)) {
+			if (mouseClickInfo.ctrlKey)
+				window.open(GITHUB_URL,'_blank')
+			else
+				window.location.href = GITHUB_URL
+		} else if (linkedInLogo.circleRadius >= distanceBetweenTwoPoints(mousePos, linkedInLogo.position)) {
+			if (mouseClickInfo.ctrlKey)
+				window.open(LINKEDIN_URL,'_blank')
+			else
+				window.location.href = LINKEDIN_URL
+		}
 		window.addEventListener('click', handleMouseClick)
 
-	}, [mouseClickPos])
+	}, [mouseClickInfo])
 
 	useEffect(() => {
 		if (!renderState) return
@@ -197,7 +207,10 @@ const HomeComponent = ({loaded_sprites}) => {
 		if (!renderState) return
 		const letters = renderState.engine.world.bodies.filter(body => BODY_LABELS.includes(body.label))
 		letters.forEach(letter => Composite.remove(renderState.engine.world, letter))
-		renderState.engine.gravity.y = 0.5
+		if (renderState.engine.gravity.y < 0)
+			renderState.engine.gravity.y *= -1
+		if (gravityToggle)
+			setGravityToggle(gravityToggle => !gravityToggle)
 		setCreateLetters(createLetters => !createLetters)
 	}, [resetWorld])
 
@@ -213,7 +226,6 @@ const HomeComponent = ({loaded_sprites}) => {
 	useEffect(() => {
 		if (constraints) {
 			let { width, height } = constraints
-
 			// Dynamically update canvas and bounds
 			renderState.bounds.max.x = width
 			renderState.bounds.max.y = height
@@ -280,7 +292,7 @@ const HomeComponent = ({loaded_sprites}) => {
 				{ x: width + 1, y: height },
 				{ x: width, y: height },
 			])
-			if (createLetters) setCreateLetters(createLetters => !createLetters)
+			setResetWorld(resetWorld => !resetWorld)
 
 		}
 	}, [constraints])
@@ -290,19 +302,24 @@ const HomeComponent = ({loaded_sprites}) => {
 
 		let { width, height } = constraints
 
-		let letter_x_pos = width/4.5
+		let letter_x_pos = (width/2) - 450
 		let letter_y_pos = height/4
 		const LETTER_SPACING = 10
 		let letter_heigh_ref = null
 		let prev_letter = null
 
-		for (let i = 0; i < MY_NAME.length; i++) {
-			if (MY_NAME.charAt(i) === ' ') {
+		let myName = MY_NAME
+		if (width <= 960) {
+			myName = 'Gianfranco'
+			letter_x_pos = (width/2) - 145
+		}
+		for (let i = 0; i < myName.length; i++) {
+			if (myName.charAt(i) === ' ') {
 				letter_x_pos += 25
 				continue
 			}
 
-			let current_img = loaded_sprites[LETTER_PATH + MY_NAME.charAt(i) + '.png']
+			let current_img = loaded_sprites[LETTER_PATH + myName.charAt(i) + '.png']
 			let curr_height = current_img.height * 0.1
 			let curr_width = current_img.width * 0.1
 

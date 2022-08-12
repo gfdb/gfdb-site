@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { loadImage } from '../../helpers'
 import HomeComponent from '../../components/home/home'
+import loading from '../../resources/images/whiteG.gif'
 
 const LETTER_PATH = '/letters/'
 const LOGO_PATH = '/logos/'
@@ -30,6 +31,7 @@ const SPRITES = [
 const Home = () => {
 
 	const [loaded_sprites, setLoadedSprites] = useState()
+	const [display, setDisplay] = useState(false)
 
 	useEffect(() => {
 		Promise.all(SPRITES.map(url => loadImage(url))).then(
@@ -43,23 +45,35 @@ const Home = () => {
 		)
 	}, [])
 
+	useEffect(() => {
+		let sec = 2.2
+    	let timer = setInterval(() => {
+			sec = sec - 0.1
+			if (sec < 0) {
+				setDisplay(true)
+				clearInterval(timer)
+        }
+    }, 100)
+	}, [])
+
 
 	return (
 		<>
-			{ loaded_sprites ? 
+			{ loaded_sprites && display ? 
 			  <HomeComponent loaded_sprites = {loaded_sprites}/>
 			: <div style = {{
 					textAlign: 'center',
 					marginTop: '10rem'
 				}}
 			>
-				<p
+				<img 
+					src = {loading}
 					style = {{
-						fontSize: '72px'
+						width: '10%',
+						height: '10%'
 					}}
-				>
-					Loading
-				</p>
+
+				/>
 			  </div>
 			}
 		</>
