@@ -25,7 +25,6 @@ const HomeComponent = ({loaded_sprites}) => {
 	const [cursorState, setCursorState] = useState('default')
 	const [mouseClickInfo, setMouseClickInfo] = useState({x: 0, y: 0, ctrlKey: undefined})
 	const [mouseMovePos, setMouseMovePos] = useState({x: 0, y: 0})
-	const [mediaQuery, setMediaQuery] = useState(mq(useMediaQuery))
 
 	const [gravityToggle, setGravityToggle] = useState(false)
 	const [invertGravity, setInvertGravityToggle] = useState(false)
@@ -208,7 +207,10 @@ const HomeComponent = ({loaded_sprites}) => {
 		if (!renderState) return
 		const letters = renderState.engine.world.bodies.filter(body => BODY_LABELS.includes(body.label))
 		letters.forEach(letter => Composite.remove(renderState.engine.world, letter))
-		renderState.engine.gravity.y = 0.5
+		if (renderState.engine.gravity.y < 0)
+			renderState.engine.gravity.y *= -1
+		if (gravityToggle)
+			setGravityToggle(gravityToggle => !gravityToggle)
 		setCreateLetters(createLetters => !createLetters)
 	}, [resetWorld])
 
@@ -224,7 +226,6 @@ const HomeComponent = ({loaded_sprites}) => {
 	useEffect(() => {
 		if (constraints) {
 			let { width, height } = constraints
-
 			// Dynamically update canvas and bounds
 			renderState.bounds.max.x = width
 			renderState.bounds.max.y = height
@@ -291,7 +292,7 @@ const HomeComponent = ({loaded_sprites}) => {
 				{ x: width + 1, y: height },
 				{ x: width, y: height },
 			])
-			if (createLetters) setCreateLetters(createLetters => !createLetters)
+			setResetWorld(resetWorld => !resetWorld)
 
 		}
 	}, [constraints])
@@ -301,20 +302,17 @@ const HomeComponent = ({loaded_sprites}) => {
 
 		let { width, height } = constraints
 
-		let letter_x_pos = width/5.5
+		let letter_x_pos = (width/2) - 450
 		let letter_y_pos = height/4
 		const LETTER_SPACING = 10
 		let letter_heigh_ref = null
 		let prev_letter = null
 
 		let myName = MY_NAME
-		if (mediaQuery === 1 || mediaQuery === 2)
+		if (width <= 960) {
 			myName = 'Gianfranco'
-		if (mediaQuery === 1)
-			letter_x_pos = width/8
-		if (mediaQuery === 2)
-			letter_x_pos = width*3.2/10
-
+			letter_x_pos = (width/2) - 145
+		}
 		for (let i = 0; i < myName.length; i++) {
 			if (myName.charAt(i) === ' ') {
 				letter_x_pos += 25
