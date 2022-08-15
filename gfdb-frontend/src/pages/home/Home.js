@@ -46,7 +46,7 @@ const Home = () => {
 	}, [])
 
 	useEffect(() => {
-		let sec = 2.2
+		let sec = 2.3
     	let timer = setInterval(() => {
 			sec = sec - 0.1
 			if (sec < 0) {
