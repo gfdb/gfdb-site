@@ -59,7 +59,7 @@ const Home = () => {
 
 	return (
 		<>
-			{ loaded_sprites && display ? 
+			{ loaded_sprites ? 
 			  <HomeComponent loaded_sprites = {loaded_sprites}/>
 			: <div style = {{
 					textAlign: 'center',

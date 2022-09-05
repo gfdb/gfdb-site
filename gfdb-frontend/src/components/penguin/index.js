@@ -56,8 +56,19 @@ export default function Penguin() {
 
 	const [update_sprite_flag, updateSpriteFlag] = useState(false)
 
+	const [lastMovementTime, setLastMovementTime] = useState(new Date())
+
 	const handleResize = () => {
 		setConstraints(boxRef.current.getBoundingClientRect())
+	}
+
+
+	const moveCharacter = (vector) => {
+		Matter.Body.applyForce(
+			scene.engine.world.bodies[3], // peguin body
+			scene.engine.world.bodies[3].position, // penguin pos
+			vector
+		)
 	}
 
 	useEffect(() => {
@@ -66,6 +77,19 @@ export default function Penguin() {
 				if (Array.isArray(movementStateArray.movement_array) 
 						&& movementStateArray.movement_array.length) {
 					setCharacterMovement(character_movement => !character_movement)
+				}
+				let timeNow = new Date()
+				if (timeNow.getTime() - lastMovementTime.getTime() > 20000) {
+					let randomInt = Math.round(Math.random()*10)
+					if (randomInt === 0 || randomInt === 9)
+						moveCharacter(Matter.Vector.create(0, -0.012))
+					else if (randomInt % 2 === 0)
+						moveCharacter(Matter.Vector.create(-0.004, 0))
+					else
+						moveCharacter(Matter.Vector.create(0.004, 0))
+					setLastMovementTime(new Date())
+						
+
 				}
 
 				
@@ -125,7 +149,7 @@ export default function Penguin() {
 			return () => clearInterval(interval)
 		}
 		
-	}, [spawn_character])
+	}, [spawn_character, lastMovementTime, lastMovementTime])
 
 
 	useEffect(() => {
@@ -218,6 +242,7 @@ export default function Penguin() {
 		if (index > -1) {
 			temp_movement_array.splice(index, 1)
 			setMovementArray({ movement_array: temp_movement_array })
+			setLastMovementTime(new Date())
 		}
 	}
 
@@ -232,29 +257,17 @@ export default function Penguin() {
 			const penguin = scene.engine.world.bodies[3]
 			
 			if(movementStateArray.movement_array.includes('right')) {
-				Matter.Body.applyForce(
-					penguin,
-					penguin.position,
-					Matter.Vector.create(0.001, 0)
-				)
+				moveCharacter(Matter.Vector.create(0.001, 0))
 			}
 
 			if(movementStateArray.movement_array.includes('left')) {
-				Matter.Body.applyForce(
-					penguin,
-					penguin.position,
-					Matter.Vector.create(-0.001, 0)
-				)
+				moveCharacter(Matter.Vector.create(-0.001, 0))
 			}
 
 			if(movementStateArray.movement_array.includes('up')) {
 				// check to make sure they are not already jumping
 				if (Matter.Collision.collides(penguin, floor) != null) {
-					Matter.Body.applyForce(
-						penguin,
-						penguin.position,
-						Matter.Vector.create(0, -0.012),
-					)
+					moveCharacter(Matter.Vector.create(0, -0.012))
 				}
 			}
 			updateSpriteFlag(true)
