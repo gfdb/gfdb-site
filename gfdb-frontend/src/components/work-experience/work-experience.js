@@ -3,7 +3,6 @@ import { THEME } from '../../resources/theme'
 import arrowLeft from '../../resources/images/arrow-left.svg'
 import { useState, useEffect, useRef } from 'react'
 import { useSpring, animated as a, SpringValue } from 'react-spring'
-import { useMediaQuery } from 'react-responsive'
 
 const months = [
     'Jan',
@@ -37,7 +36,6 @@ const WorkExperienceCard = ({
     const dropdownRef = useRef(null)
 
     const handleResize = () => {
-        console.log(dropdownRef?.current)
 		setDropdownHeight(dropdownRef?.current?.clientHeight)
 	}
 
@@ -51,8 +49,6 @@ const WorkExperienceCard = ({
 			dropdownRef?.current?.removeEventListener('resize', handleResize)
 		}
 	}, [dropdownHeight])
-
-    useEffect(() => {console.log('dropdownHeight', dropdownHeight)}, [])
     
     const dropDownAnimationParent = useSpring({
         immediate: !animate,
@@ -177,7 +173,7 @@ const WorkExperienceCard = ({
                 </ul>
                 <p
                     style = {{
-                        fontSize: '12px',
+                        fontSize: '14px',
                         fontWeight: 400,
                         margin: '0'
                     }}
