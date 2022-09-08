@@ -33,21 +33,42 @@ const WorkExperienceCard = ({
 
     const [droppedDown, setDroppedDown] = useState(false)
     const [animate, setAnimate] = useState(false)
-    const [dropdownHeight, setDropdownHeight] = useState(175)
+    const [dropdownHeight, setDropdownHeight] = useState(0)
     const dropdownRef = useRef(null)
 
+    const handleResize = () => {
+        console.log(dropdownRef?.current)
+		setDropdownHeight(dropdownRef?.current?.clientHeight)
+	}
 
+    useEffect(() => {
+        handleResize()
+        dropdownRef?.current?.addEventListener('resize', handleResize)
+    }, [dropdownHeight])
+
+    useEffect(() => {
+		return () => {
+			dropdownRef?.current?.removeEventListener('resize', handleResize)
+		}
+	}, [dropdownHeight])
+
+    useEffect(() => {console.log('dropdownHeight', dropdownHeight)}, [])
     
-    const dropDownAnimation = useSpring({
+    const dropDownAnimationParent = useSpring({
         immediate: !animate,
-        // from: {height: !droppedDown ? 'fit-content' : '0vh', opacity: !droppedDown ? 1 : 0},
-        to: {height: droppedDown ? '100%' : '0%', opacity: droppedDown ? 1 : 0},
+        to: {height: droppedDown ? (dropdownHeight + 90) : 90},
+        config: {mass: 1, tension: 100, friction: 35}
+    })
+
+    const fadeInAnimation = useSpring({
+        immediate: !animate,
+        to: {opacity: droppedDown ? 1 : 0},
         config: {mass: 1, tension: 100, friction: 35}
     })
 
 
     return (
-        <div
+        <a.div
             style = {{
                 display: 'flex',
                 flexDirection: 'column',
@@ -58,7 +79,10 @@ const WorkExperienceCard = ({
                 borderStyle: 'solid',
                 borderWidth: '1px',
                 cursor: 'pointer',
-                height: `${76 + dropDownAnimation.height}px`
+                height: `${dropdownHeight + 90}px`,
+                overflow: 'hidden',
+                ...dropDownAnimationParent
+
             }}
             onClick = {() => {
                 setAnimate(true)
@@ -127,43 +151,41 @@ const WorkExperienceCard = ({
                     }}
                 />
            </div>
-            {/* { droppedDown && */}
-                <a.div
-                    style = {{
-                        display: 'flex',
-                        flexDirection: 'column',
-                        gap: '10px',
-                        color: THEME.text,
-                        marginTop: '20px',
-                        ...dropDownAnimation
-                    }}
-                    ref = {dropdownRef}
-                >
+            <a.div
+                style = {{
+                    display: 'flex',
+                    flexDirection: 'column',
+                    gap: '10px',
+                    color: THEME.text,
+                    marginTop: '20px',
+                    ...fadeInAnimation
+                }}
+                ref = {dropdownRef}
+            >
 
-                    <ul
-                        style = {{
-                            paddingRight: '1rem',
-                            paddingLeft: '1rem'
-                        }}
-                    >
-                        {jobBullets?.map((bulletText, i) => (
-                            <li key = {i}>
-                                {bulletText}
-                            </li>
-                        ))}
-                    </ul>
-                    <p
-                        style = {{
-                            fontSize: '12px',
-                            fontWeight: 600,
-                            margin: '0'
-                        }}
-                    >
-                        {jobDescription} 
-                    </p>
-                </a.div>
-            {/* } */}
-        </div>
+                <ul
+                    style = {{
+                        paddingRight: '1rem',
+                        paddingLeft: '1rem'
+                    }}
+                >
+                    {jobBullets?.map((bulletText, i) => (
+                        <li key = {i}>
+                            {bulletText}
+                        </li>
+                    ))}
+                </ul>
+                <p
+                    style = {{
+                        fontSize: '12px',
+                        fontWeight: 400,
+                        margin: '0'
+                    }}
+                >
+                    {jobDescription} 
+                </p>
+            </a.div>
+        </a.div>
     )
 }
 
