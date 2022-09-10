@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { loadImage } from '../../helpers'
-import HomeComponent from '../../components/home/home'
+import HomeComponent from '../../components/home/home.js'
 import loading from '../../resources/images/whiteG.gif'
 
 const LETTER_PATH = '/letters/'
