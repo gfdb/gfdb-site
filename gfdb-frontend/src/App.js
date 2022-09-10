@@ -1,4 +1,4 @@
-import Home from './pages/home/home'
+import Home from './pages/home/home.js'
 import WorkExperience from './pages/work'
 import Education from './pages/education'
 import Projects from './pages/projects'
