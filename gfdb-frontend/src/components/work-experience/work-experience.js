@@ -19,12 +19,12 @@ const months = [
     'Dec'
 ]
 
-const WorkExperienceCard = ({
+const ExperienceCard = ({
     companyName,
     jobTitle,
     companyLogo,
-    jobDescription = 'this is a job description',
-    jobBullets = ['bullet 1', 'bullet 2', 'bullet 3'],
+    jobDescription,
+    jobBullets,
     startDate,
     endDate,
     companyWebsite,
@@ -74,21 +74,24 @@ const WorkExperienceCard = ({
                 borderColor: THEME.text,
                 borderStyle: 'solid',
                 borderWidth: '1px',
-                cursor: 'pointer',
+                cursor: ( (jobBullets || jobDescription) && 'pointer'),
                 height: `${dropdownHeight + 90}px`,
                 overflow: 'hidden',
                 ...dropDownAnimationParent
 
             }}
             onClick = {() => {
-                setAnimate(true)
-                setDroppedDown(droppedDown => !droppedDown)
+                if (jobBullets || jobDescription) {
+                    setAnimate(true)
+                    setDroppedDown(droppedDown => !droppedDown)
+                }
             }}
         > 
            <div
                 style = {{
                     display: 'flex',
-                    width: '100%'
+                    width: '100%',
+                    height: '100%'
                 }}
            >
                 <div
@@ -117,15 +120,17 @@ const WorkExperienceCard = ({
                     >
                         {companyName}
                     </p>
-                    <p
-                        style = {{
-                            fontSize: '12px',
-                            fontWeight: 600,
-                            margin: '0'
-                        }}
-                    >
-                        {months[startDate.getMonth()]} {startDate.getFullYear()} - {months[endDate.getMonth()]} {endDate.getFullYear()}
-                    </p>
+                    { startDate && endDate &&
+                        <p
+                            style = {{
+                                fontSize: '12px',
+                                fontWeight: 600,
+                                margin: '0'
+                            }}
+                        >
+                            {months[startDate.getMonth()]} {startDate.getFullYear()} - {months[endDate.getMonth()]} {endDate.getFullYear()}
+                        </p>
+                    }
 
                 </div>
                 <img 
@@ -133,7 +138,8 @@ const WorkExperienceCard = ({
                     style = {{
                         width: '50px',
                         height: '50px',
-                        margin: 'auto 12px auto auto'
+                        margin: 'auto 12px auto auto',
+                        cursor: 'pointer'
                     }}
                     onClick = {() => window.location.href = companyWebsite}
                 />
@@ -144,45 +150,48 @@ const WorkExperienceCard = ({
                         height: '14px',
                         margin: 'auto 0',
                         transform: (droppedDown ? 'rotate(90deg)': 'rotate(-90deg)'),
+                        display: (!(jobBullets || jobDescription) && 'none'),
                     }}
                 />
            </div>
-            <a.div
-                style = {{
-                    display: 'flex',
-                    flexDirection: 'column',
-                    gap: '10px',
-                    color: THEME.text,
-                    marginTop: '20px',
-                    ...fadeInAnimation
-                }}
-                ref = {dropdownRef}
-            >
+            { (jobDescription || jobBullets) &&
+                <a.div
+                    style = {{
+                        display: 'flex',
+                        flexDirection: 'column',
+                        gap: '10px',
+                        color: THEME.text,
+                        marginTop: '20px',
+                        ...fadeInAnimation
+                    }}
+                    ref = {dropdownRef}
+                >
 
-                <ul
-                    style = {{
-                        paddingRight: '1rem',
-                        paddingLeft: '1rem'
-                    }}
-                >
-                    {jobBullets?.map((bulletText, i) => (
-                        <li key = {i}>
-                            {bulletText}
-                        </li>
-                    ))}
-                </ul>
-                <p
-                    style = {{
-                        fontSize: '14px',
-                        fontWeight: 400,
-                        margin: '0'
-                    }}
-                >
-                    {jobDescription} 
-                </p>
-            </a.div>
+                    <ul
+                        style = {{
+                            paddingRight: '1rem',
+                            paddingLeft: '1rem'
+                        }}
+                    >
+                        {jobBullets?.map((bulletText, i) => (
+                            <li key = {i}>
+                                {bulletText}
+                            </li>
+                        ))}
+                    </ul>
+                    <p
+                        style = {{
+                            fontSize: '14px',
+                            fontWeight: 400,
+                            margin: '0'
+                        }}
+                    >
+                        {jobDescription} 
+                    </p>
+                </a.div>
+            }
         </a.div>
     )
 }
 
-export default WorkExperienceCard
+export default ExperienceCard

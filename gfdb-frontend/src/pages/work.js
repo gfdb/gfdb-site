@@ -1,12 +1,12 @@
-import WorkExperienceCard from '../../components/work-experience/work-experience'
-import competeLogo from '../../resources/images/compete.svg'
-import haivisionLogo from '../../resources/images/haivision.jpg'
+import ExperienceCard from '../components/work-experience/work-experience'
+import competeLogo from '../resources/images/compete.svg'
+import haivisionLogo from '../resources/images/haivision.jpg'
 import { useSpring, animated as a } from 'react-spring'
 import { useEffect, useRef, useState } from 'react'
 
 const WorkExperience = () => {
 
-    const workExperienceCardRef = useRef(null)
+    const experienceCardRef = useRef(null)
     const [workExpWidth, setWorkExpWidth] = useState()
 
     const animationOnRender0 = useSpring({
@@ -32,7 +32,7 @@ const WorkExperience = () => {
     })
 
     const handleResize = () => {
-        setWorkExpWidth(window.innerWidth/2 - workExperienceCardRef.current.offsetWidth/2)
+        setWorkExpWidth(window.innerWidth/2 - experienceCardRef.current.offsetWidth/2)
     }
 
 
@@ -49,10 +49,24 @@ const WorkExperience = () => {
 
     const competeBullets1 = [
         'Created Tool Suite to automate parts of our testing process and improve testing efficiency.',
-        'Created Notifications component to display relevant messages to users.',
-        'Created Chat for users in a tournament or a match to talk to each other, improved user to user communication.'
+        'Created Notifications component to display relevant messages and actions to users.',
+        'Created Chat for users in a tournament or a match to talk to each other.'
     ]
-    const competeDesc1 = ''
+    const competeDesc1 = 'Working at Compete the second time around was great. This time I got an offer to work as a Full Stack Engineer (frontend focused) which mean\'t' +
+                         ' that I\'d be using React. At the time I had already began working on this website, so I had some knowledge of React and how the library worked.' +
+                         ' This helped me out a lot at the beginning of the internship. I learned all about React, redux, and client side web development in general.' + 
+                         ' The first thing I did when I got back is began working on the Tool Suite. In the internship before this I made custom command line tools for' +
+                         ' creating, configuring, populating, and simulating tournaments. The Tool Suite was essentially a UI equivalent. I rewrote a lot of the backend code' +
+                         ' and built the UI, and that was the bulk of the backend work I did. After that and here and there during the internship I worked on a bunch of small UI tasks,' +
+                         ' like adding a tournament start time countdown timer for example. The two other \'big\' tasks I worked on were doing a chat and the notifications UI. These two' +
+                         ' were probably my favorite since they involved so many different and relatively complex components. One of which was a paginator that worked based on scroll.' +
+                         ' To explain a bit, when a user navigates to a page where there is a chat, it can be resource intensive to load hundreds of messages at once. Instead, programmers' +
+                         ' use a technique called pagination which requests smaller batches of data at a time. What the paginator I built did was initially load some number of messages' +
+                         ' and then when you scrolled up to view previous messages, it would fetch the next batch of data from our server. Something to note was that I designed the paginator in such a way' +
+                         ' where it could be reused for other things. So for example, when I did the notifications, the scrolling works in the opposite direction since notifications are newest at' +
+                         ' the top and oldest at the bottom (opposite of chat). Besides that the functionality is almost identical to the scrolling paginator for the chat. For that reason,' +
+                         ' one of the things I added was an option to choose which direction you wanted. There are a lot of things that I, as a user, had never thought about when' +
+                         ' it cames to notifications and chats. So to see it from a developer point view was really cool. Shoutout to Anthony for always helping me out and being a great Lead.'
     
     const competeBullets0 = [
         'Created statistic collection and processing systems for Call of Duty: Warzone and Fortnite tournaments.',
@@ -103,8 +117,8 @@ const WorkExperience = () => {
                 marginBottom: '100px'
             }}
         >
-            <a.div style = {{...animationOnRender0}} ref = {workExperienceCardRef}>
-                <WorkExperienceCard 
+            <a.div style = {{...animationOnRender0}} ref = {experienceCardRef}>
+                <ExperienceCard 
                     companyName = {'Compete.gg'}
                     jobTitle = {'Full Stack Engineer Intern'}
                     companyLogo = {competeLogo}
@@ -116,7 +130,7 @@ const WorkExperience = () => {
                 />
             </a.div>
             <a.div style = {{...animationOnRender1}}>
-                <WorkExperienceCard 
+                <ExperienceCard 
                     companyName = {'Compete.gg'}
                     jobTitle = {'Backend Engineer Intern'}
                     companyLogo = {competeLogo}
@@ -128,7 +142,7 @@ const WorkExperience = () => {
                 />
             </a.div>
             <a.div style = {{...animationOnRender2}}>
-                <WorkExperienceCard 
+                <ExperienceCard 
                     companyName = {'Haivision'}
                     jobTitle = {'Software Development Engineer in Test'}
                     companyLogo = {haivisionLogo}
