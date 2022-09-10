@@ -5,7 +5,9 @@ import { useEffect, useState, useRef } from 'react'
 import hamburger from '../../resources/images/hamburger.svg'
 import { THEME } from '../../resources/theme'
 
-const NavList = () => {
+const NavList = ({
+    onClick = () => {}
+}) => {
     return (
         <nav
             className='stroke'
@@ -15,17 +17,20 @@ const NavList = () => {
                 }}
             >
                 <li>
-                    <Link to = '/'>Home</Link>
+                    <Link to = '/' onClick = {onClick}>Home</Link>
                 </li>
                 <li>
-                    <Link to = '/work-experience'>Work Experience</Link>
+                    <Link to = '/work-experience' onClick = {onClick}>Work Experience</Link>
                 </li>
                 <li>
-                    <Link to = '/education'>Education</Link>
+                    <Link to = '/education' onClick = {onClick}>Education</Link>
+                </li>
+                {/* <li>
+                    <Link to = '/projects' onClick = {onClick}>Projects</Link>
                 </li>
                 <li>
-                    <Link to = '/games'>Games</Link>
-                </li>
+                    <Link to = '/games' onClick = {onClick}>Games</Link>
+                </li> */}
             </ul>
         </nav>
     )
@@ -38,6 +43,7 @@ export default function Nav() {
     const [constraints, setConstraints] = useState()
     const [showDropDown, setShowDropDown] = useState(false)
 	const [iconRotation, setIconRotation] = useState()
+    const [scrollHeight, setScrollHeight] = useState(0)
     
 
     const handleResize = () => {setConstraints(navRef.current.getBoundingClientRect())}
@@ -50,6 +56,20 @@ export default function Nav() {
 	useEffect(() => {
 		return () => {
 			window.removeEventListener('resize', handleResize)
+		}
+	}, [])
+
+    const handleScroll = () => {
+        setScrollHeight(window.scrollY)
+    }
+
+    useEffect(() => {
+        window.addEventListener('scroll', handleScroll)
+    }, [])
+
+	useEffect(() => {
+		return () => {
+			window.removeEventListener('scroll', handleScroll)
 		}
 	}, [])
 
@@ -84,8 +104,6 @@ export default function Nav() {
 		return () => clearInterval(interval)
 	}, [iconRotation])
 
-
-
     return (
         <>
             <div 
@@ -108,7 +126,7 @@ export default function Nav() {
                                     maxHeight: 'fit-content',
                                     zIndex: 1,
                                     position: 'absolute',
-                                    top: '100px',
+                                    top: `${(scrollHeight < 100 ? 100 : scrollHeight )}px`,
                                     left: 0,
                                     width: '200px',
                                     backgroundColor: THEME.bgLight,
@@ -119,7 +137,9 @@ export default function Nav() {
                                 ref = {dropDownRef}
                             >
                                 <NavList 
-        
+                                    onClick = {() => {
+                                        setIconRotation(80)
+                                    }}
                                 />
                             </div>
                         </>

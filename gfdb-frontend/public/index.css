@@ -1,3 +1,7 @@
 html {
     background: #272b33;
 }
+
+body {
+    overflow-x: hidden;
+}
