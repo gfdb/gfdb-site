@@ -91,7 +91,7 @@ const WorkExperience = () => {
                          ' work at a company where I could very clearly see the impact of the software that I was writing. ' +
                          'All in all, it was a great experience and I learned a lot from this job. Special thanks to Jordan for teaching me so much.'
 
-    const haivisionDesc = 'My first coop internship was at Haivision. I learned a great deal about python, QA, software processes, and programming in general. '+
+    const haivisionDesc = 'My first coop internship was at Haivision as a Software Development Engineer in Test Intern. I learned a great deal about python, QA, software processes, and programming in general. '+
                           'All the teams I worked with were filled with professional, kind, and intelligent people. ' +
                           'Working in a big company like this taught me a lot. The biggest thing I took out of this experience is the ' +
                           'importance of a team. Although the the role of the engineers who write the \'core\' code is important, without the ' +
@@ -144,7 +144,7 @@ const WorkExperience = () => {
             <a.div style = {{...animationOnRender2}}>
                 <ExperienceCard 
                     companyName = {'Haivision'}
-                    jobTitle = {'Software Development Engineer in Test'}
+                    jobTitle = {'SDET Intern'}
                     companyLogo = {haivisionLogo}
                     companyWebsite = {'https://haivision.com/'}
                     jobDescription = {haivisionDesc}
