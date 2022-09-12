@@ -25,9 +25,6 @@ This is my personal website. I plan to use it to display my work experience and 
 - Learn to deploy a javascript project to production
 - More to come as I go
 
-This is my first time using React. It's also my first time having an independant frontend server... pretty crazy stuff. Especially ```useEffect()```. 
-
-
 I'll write more about the site in this readme when there is more to show.
 
 <sub>If you are reading this, try using the arrow keys and the space bar to move the little dude in the navbar.</sub>
