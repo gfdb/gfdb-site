@@ -55,7 +55,7 @@ export default function Nav() {
 
     const dropDownAnimation = useSpring({
         to: {height: (showDropDown ? dropDownHeight + 30 : 0)},
-	    config: {mass: 1, tension: 200, friction: 16}
+	    config: {mass: 1, tension: 200, friction: 30}
     })
 
     const handleDropDownChange = () => {
@@ -170,6 +170,7 @@ export default function Nav() {
                                 padding: '20px',
                                 zIndex: 1,
                                 position: 'fixed',
+                                userSelect: 'none',
                                 ...rotateAnimation
                             }}
                             onClick = {() => {
