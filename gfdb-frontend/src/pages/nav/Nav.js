@@ -44,7 +44,6 @@ export default function Nav() {
     const dropDownRef = useRef(null)
     const [constraints, setConstraints] = useState()
     const [showDropDown, setShowDropDown] = useState(false)
-	const [iconRotation, setIconRotation] = useState()
     const [scrollHeight, setScrollHeight] = useState(0)
     const [dropDownHeight, setDropDownHeight] = useState(0)
 
@@ -59,7 +58,22 @@ export default function Nav() {
 	    config: {mass: 1, tension: 200, friction: 16}
     })
 
+    const handleDropDownChange = () => {
+		setDropDownHeight(dropDownRef?.current?.clientHeight)
+	}
+
     const handleResize = () => {setConstraints(navRef.current.getBoundingClientRect())}
+
+    const handleScroll = () => {
+        setScrollHeight(window.scrollY)
+    }
+
+    const checkIfClickedOutside = (e) => {
+        if (showDropDown && dropDownRef?.current && !dropDownRef?.current?.contains(e.target)) {
+            console.log('toggle in check if clicked outside')
+            setShowDropDown(showDropDown => !showDropDown)
+        }
+    }
 
     useEffect(() => {
         setConstraints(navRef.current.getBoundingClientRect())
@@ -72,10 +86,6 @@ export default function Nav() {
 		}
 	}, [])
 
-    const handleScroll = () => {
-        setScrollHeight(window.scrollY)
-    }
-
     useEffect(() => {
         window.addEventListener('scroll', handleScroll)
     }, [])
@@ -87,21 +97,12 @@ export default function Nav() {
 	}, [])
 
     useEffect(() => {
-        const checkIfClickedOutside = e => {
-            if (showDropDown && dropDownRef?.current && !dropDownRef?.current?.contains(e.target)) {
-		        setShowDropDown(showDropDown => !showDropDown)
-            }
-        }
         document.addEventListener('click', checkIfClickedOutside)
       
         return () => {
             document.removeEventListener('click', checkIfClickedOutside)
         }
     }, [showDropDown])
-
-    const handleDropDownChange = () => {
-		setDropDownHeight(dropDownRef?.current?.clientHeight)
-	}
 
     useEffect(() => {
         handleDropDownChange()
@@ -122,7 +123,7 @@ export default function Nav() {
                 className='navbar'
                 ref = {navRef}
                 style = {{
-                    width: '100%',
+                    width: '100%', 
                     height: '100px',
                     overflow: 'hidden'
                 }}
@@ -172,8 +173,10 @@ export default function Nav() {
                                 ...rotateAnimation
                             }}
                             onClick = {() => {
-                                setShowDropDown(showDropDown => !showDropDown)
-                                console.log('toggle')
+                                // only used to open the dropdown
+                                // checkIfClickedOutside will handle closing it
+                                if (!showDropDown)
+                                    setShowDropDown(true)
                             }}
                         />
                     </div>
