@@ -9,7 +9,11 @@ jobs:
     runs-on: ubuntu-latest
     if: github.event.pull_request.merged == true
     steps:
+<<<<<<< HEAD
     - name: trigger single job
+=======
+    - name: Trigger Jenkins Multiple Jobs
+>>>>>>> cc3e22bbdfeeec96620c37d7c6c463273fb98c62
       uses: appleboy/jenkins-action@v0.0.2
       with:
         url: "http://159.223.153.129:8080/"
