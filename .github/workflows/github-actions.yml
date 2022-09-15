@@ -6,11 +6,11 @@ on:
 jobs:
   build:
     name: Build
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-latest
     if: github.event.pull_request.merged == true
     steps:
-    - name: trigger single Job
-      uses: gfdb/gfdb-site@master
+    - name: Trigger Jenkins Multiple Jobs
+      uses: appleboy/jenkins-action@v0.0.2
       with:
         url: "http://159.223.153.129:8080/"
         user: "gfdb"
