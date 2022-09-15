@@ -9,10 +9,10 @@ jobs:
     runs-on: ubuntu-latest
     if: github.event.pull_request.merged == true
     steps:
-    - name: Trigger Jenkins Multiple Jobs
+    - name: trigger single job
       uses: appleboy/jenkins-action@v0.0.2
       with:
         url: "http://159.223.153.129:8080/"
         user: "gfdb"
-        token: ${{ secrets.JENKINS }}
+        token: ${{ secrets.JENKINS_TOKEN }}
         job: "gfdb-site"
