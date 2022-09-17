@@ -71,4 +71,6 @@ const find_body_in_array = (body_label, array) => {
 	return undefined
 }
 
-export {trim_url_domain, preload_sprites, find_body_in_array, loadImage}
+const initialLoadAnimation = {displayLoadAnimation: true}
+
+export {trim_url_domain, preload_sprites, find_body_in_array, loadImage, initialLoadAnimation}

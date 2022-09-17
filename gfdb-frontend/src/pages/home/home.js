@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { loadImage } from '../../helpers'
 import HomeComponent from '../../components/home/home.js'
 import loading from '../../resources/images/whiteG.gif'
+import { initialLoadAnimation } from '../../helpers'
 
 const LETTER_PATH = '/letters/'
 const LOGO_PATH = '/logos/'
@@ -51,6 +52,8 @@ const Home = () => {
 			sec = sec - 0.1
 			if (sec < 0) {
 				setDisplay(true)
+				initialLoadAnimation.displayLoadAnimation = false
+				Object.freeze(initialLoadAnimation)
 				clearInterval(timer)
         }
     }, 100)
@@ -59,7 +62,7 @@ const Home = () => {
 
 	return (
 		<>
-			{ loaded_sprites ? 
+			{ (loaded_sprites && display && initialLoadAnimation) ? 
 			  <HomeComponent loaded_sprites = {loaded_sprites}/>
 			: <div style = {{
 					textAlign: 'center',
@@ -69,8 +72,8 @@ const Home = () => {
 				<img 
 					src = {loading}
 					style = {{
-						width: '10%',
-						height: '10%'
+						width: '80px',
+						height: '125px'
 					}}
 
 				/>
