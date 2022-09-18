@@ -54,7 +54,6 @@ function preload_sprites(arr_sprite_urls, return_img_obj = false) {
 	let loaded_sprites = {}
 	if (return_img_obj)
 		arr_sprite_urls.forEach(sprite_url => {
-			console.log('here', sprite_url)
 			loaded_sprites[sprite_url] = load_image(sprite_url, true)}
 		)
 	else
@@ -71,6 +70,4 @@ const find_body_in_array = (body_label, array) => {
 	return undefined
 }
 
-const initialLoadAnimation = {displayLoadAnimation: true}
-
-export {trim_url_domain, preload_sprites, find_body_in_array, loadImage, initialLoadAnimation}
+export {trim_url_domain, preload_sprites, find_body_in_array, loadImage}
