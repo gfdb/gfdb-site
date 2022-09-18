@@ -74,10 +74,10 @@ const Education = () => {
                 width: '100%',
                 paddingTop: '100px',
                 overflowX: 'hidden',
-                marginBottom: '100px'
+                paddingBottom: '100px'
             }}
         >
-            <a.div style = {{...animationOnRender0}}>
+            <a.div style = {{...animationOnRender0, boxShadow: '24px 24px 24px rgba(0, 0, 0, 0.32)'}}>
                 <ExperienceCard 
                     companyName = {'Concordia University'}
                     jobTitle = {'BE - Software Engineering'}
@@ -89,7 +89,7 @@ const Education = () => {
                     endDate = {new Date(2023, 4, 4)}
                 />
             </a.div>
-            <a.div style = {{...animationOnRender1}} ref = {experienceCardRef}>
+            <a.div style = {{...animationOnRender1, boxShadow: '24px 24px 24px rgba(0, 0, 0, 0.32)'}} ref = {experienceCardRef}>
                 <ExperienceCard 
                     companyName = {'Lower Canada College'}
                     jobTitle = {'High School and Grade 12'}

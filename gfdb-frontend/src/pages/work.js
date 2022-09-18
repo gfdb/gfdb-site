@@ -114,10 +114,15 @@ const WorkExperience = () => {
                 width: '100%',
                 paddingTop: '100px',
                 overflowX: 'hidden',
-                marginBottom: '100px'
+                paddingBottom: '100px'
             }}
         >
-            <a.div style = {{...animationOnRender0}} ref = {experienceCardRef}>
+            <a.div 
+                style = {{
+                        ...animationOnRender0,
+                        boxShadow: '24px 24px 24px rgba(0, 0, 0, 0.32)',
+                    }} 
+                ref = {experienceCardRef}>
                 <ExperienceCard 
                     companyName = {'Compete.gg'}
                     jobTitle = {'Full Stack Engineer Intern'}
@@ -129,7 +134,11 @@ const WorkExperience = () => {
                     endDate = {new Date(2022, 7, 26)}
                 />
             </a.div>
-            <a.div style = {{...animationOnRender1}}>
+            <a.div 
+                style = {{
+                    ...animationOnRender1,
+                    boxShadow: '24px 24px 24px rgba(0, 0, 0, 0.32)',
+                }}>
                 <ExperienceCard 
                     companyName = {'Compete.gg'}
                     jobTitle = {'Backend Engineer Intern'}
@@ -141,7 +150,11 @@ const WorkExperience = () => {
                     endDate = {new Date(2021, 7, 26)}
                 />
             </a.div>
-            <a.div style = {{...animationOnRender2}}>
+            <a.div 
+                style = {{
+                    ...animationOnRender2,
+                    boxShadow: '24px 24px 24px rgba(0, 0, 0, 0.32)',
+                }}>
                 <ExperienceCard 
                     companyName = {'Haivision'}
                     jobTitle = {'SDET Intern'}
