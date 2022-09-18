@@ -125,7 +125,8 @@ export default function Nav() {
                 style = {{
                     width: '100%', 
                     height: '100px',
-                    overflow: 'hidden'
+                    overflow: 'hidden',
+                    boxShadow: '0px 12px 24px rgba(0, 0, 0, 0.32)'
                 }}
             >
             { constraints?.width >= 688 ?
