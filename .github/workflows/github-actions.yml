@@ -15,4 +15,4 @@ jobs:
         url: "http://159.223.153.129:8080/"
         user: "gfdb"
         token: ${{ secrets.JENKINS_TOKEN }}
-        job: "PR Build, update-prod"
+        job: "update-prod"
