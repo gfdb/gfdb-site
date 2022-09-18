@@ -37,7 +37,9 @@ h1, h4 {
     z-index: 3;
     min-width: 8rem;
     max-width: 8rem;
-    border-radius: 16px;
+    border-radius: 8px;
+    box-shadow: 0px 12px 24px rgba(0, 0, 0, 0.32);
+
 }
 
 .home-page-button-group button:hover {

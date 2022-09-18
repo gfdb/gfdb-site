@@ -1,7 +1,9 @@
 import { useEffect, useState } from 'react'
 import { loadImage } from '../../helpers'
 import HomeComponent from '../../components/home/home.js'
+// import loading from '../../resources/images/whiteG.gif'
 import loading from '../../resources/images/whiteG.gif'
+
 
 const LETTER_PATH = '/letters/'
 const LOGO_PATH = '/logos/'
@@ -59,7 +61,7 @@ const Home = () => {
 
 	return (
 		<>
-			{ loaded_sprites ? 
+			{ (loaded_sprites && display) ? 
 			  <HomeComponent loaded_sprites = {loaded_sprites}/>
 			: <div style = {{
 					textAlign: 'center',
@@ -69,8 +71,8 @@ const Home = () => {
 				<img 
 					src = {loading}
 					style = {{
-						width: '10%',
-						height: '10%'
+						width: '131px',
+						height: '164px'
 					}}
 
 				/>
