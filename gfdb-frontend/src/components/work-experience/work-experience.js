@@ -68,6 +68,7 @@ const ExperienceCard = ({
     useEffect(() => {
         if (!droppedDown) {
             setDroppedDownJobDesc(false)
+            setReadMoreLess('More')
         }
     }, [droppedDown])
 
