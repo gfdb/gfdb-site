@@ -171,7 +171,6 @@ export default function Nav() {
                                 padding: '20px',
                                 zIndex: 1,
                                 position: 'fixed',
-                                userSelect: 'none',
                                 ...rotateAnimation
                             }}
                             onClick = {() => {

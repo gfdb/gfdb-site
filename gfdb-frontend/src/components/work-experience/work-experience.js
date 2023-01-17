@@ -19,6 +19,12 @@ const months = [
     'Dec'
 ]
 
+const hoverStyles = {
+    textDecoration: 'underline',
+    color: THEME.textLighter,
+    fontSize: '14.5px'
+}
+
 const ExperienceCard = ({
     companyName,
     jobTitle,
@@ -31,34 +37,77 @@ const ExperienceCard = ({
 }) => {
 
     const [droppedDown, setDroppedDown] = useState(false)
+    const [disableParentDropDown, setdisableParentDropDown] = useState(false)
     const [animate, setAnimate] = useState(false)
     const [dropdownHeight, setDropdownHeight] = useState(0)
+    const [readMoreStyles, setReadMoreStyles] = useState({})
     const dropdownRef = useRef(null)
+    
+    const [droppedDownJobDesc, setDroppedDownJobDesc] = useState(false)
+    const [animateJobDesc, setAnimateJobDesc] = useState(false)
+    const [jobDescHeight, setJobDescHeight] = useState(0)
+    const [readMoreLess, setReadMoreLess] = useState('More')
+    const jobDescriptionRef = useRef(null)
+
+    const [combinedHeight, setCombinedHeight] = useState(0)
 
     const handleResize = () => {
 		setDropdownHeight(dropdownRef?.current?.clientHeight)
 	}
+    const handleResizeJobDesc = () => {
+        setJobDescHeight(jobDescriptionRef?.current?.clientHeight)
+    }
+
+    useEffect(() => {
+        if (droppedDown && droppedDownJobDesc)
+            setCombinedHeight(dropdownHeight + jobDescHeight)
+        else if (droppedDown)
+            setCombinedHeight(dropdownHeight)
+    }, [dropdownHeight, jobDescHeight, droppedDownJobDesc, droppedDown])
+
+    useEffect(() => {
+        if (!droppedDown) {
+            setDroppedDownJobDesc(false)
+            setReadMoreLess('More')
+        }
+    }, [droppedDown])
 
     useEffect(() => {
         handleResize()
         dropdownRef?.current?.addEventListener('resize', handleResize)
     }, [dropdownHeight])
+    
+    useEffect(() => {
+        return () => {
+            dropdownRef?.current?.removeEventListener('resize', handleResize)
+        }
+    }, [dropdownHeight])
+
+    useEffect(() => {
+        handleResizeJobDesc()
+        jobDescriptionRef?.current?.addEventListener('resize', handleResizeJobDesc)
+    }, [jobDescHeight])
 
     useEffect(() => {
 		return () => {
-			dropdownRef?.current?.removeEventListener('resize', handleResize)
+			jobDescriptionRef?.current?.removeEventListener('resize', handleResizeJobDesc)
 		}
-	}, [dropdownHeight])
+	}, [jobDescHeight])
     
     const dropDownAnimationParent = useSpring({
         immediate: !animate,
-        to: {height: droppedDown ? (dropdownHeight + 90) : 90},
-        config: {mass: 1, tension: 100, friction: 35}
+        to: {height: droppedDown ? (combinedHeight + 90) : 90},
+        config: {mass: 1, tension: 100, friction: 35},
     })
 
     const fadeInAnimation = useSpring({
         immediate: !animate,
         to: {opacity: droppedDown ? 1 : 0},
+        config: {mass: 1, tension: 100, friction: 35}
+    })
+    const fadeInAnimationJobDesc = useSpring({
+        immediate: !animateJobDesc,
+        to: {opacity: droppedDownJobDesc ? 1 : 0},
         config: {mass: 1, tension: 100, friction: 35}
     })
 
@@ -75,7 +124,7 @@ const ExperienceCard = ({
                 borderStyle: 'solid',
                 borderWidth: '1px',
                 cursor: ( (jobBullets || jobDescription) && 'pointer'),
-                height: `${dropdownHeight + 90}px`,
+                height: `${combinedHeight + 90}px`,
                 overflow: 'hidden',
                 ...dropDownAnimationParent
 
@@ -83,7 +132,10 @@ const ExperienceCard = ({
             onClick = {() => {
                 if (jobBullets || jobDescription) {
                     setAnimate(true)
-                    setDroppedDown(droppedDown => !droppedDown)
+                    if (!disableParentDropDown) {
+                        setDroppedDown(droppedDown => !droppedDown)
+                    }
+
                 }
             }}
         > 
@@ -155,6 +207,7 @@ const ExperienceCard = ({
                 />
            </div>
             { (jobDescription || jobBullets) &&
+                <>
                 <a.div
                     style = {{
                         display: 'flex',
@@ -170,7 +223,8 @@ const ExperienceCard = ({
                     <ul
                         style = {{
                             paddingRight: '1rem',
-                            paddingLeft: '1rem'
+                            paddingLeft: '1rem',
+                            lineHeight: '25px'
                         }}
                     >
                         {jobBullets?.map((bulletText, i) => (
@@ -182,13 +236,52 @@ const ExperienceCard = ({
                     <p
                         style = {{
                             fontSize: '14px',
+                            cursor: 'pointer',
+                            ...readMoreStyles
+                        }}
+                        onClick = {() => {
+                            setAnimateJobDesc(true)
+                            if (readMoreLess === 'More') {
+                                setReadMoreLess('Less')
+                            } else {
+                                setReadMoreLess('More')
+                            }
+                            setDroppedDownJobDesc(droppedDownJobDesc => !droppedDownJobDesc)
+
+                        }}
+                        onMouseEnter = {() => {
+                            setdisableParentDropDown(true)
+                            setReadMoreStyles(hoverStyles)
+                        }}
+                        onMouseLeave = {() => {
+                            setdisableParentDropDown(false)
+                            setReadMoreStyles({})
+                        }}
+                    >
+                        Read {readMoreLess}
+                    </p>   
+                </a.div>
+                <a.div
+                    ref = {jobDescriptionRef}
+                    style = {{
+                        ...fadeInAnimationJobDesc
+                    }}
+                >
+                    <p
+                        style = {{
+                            fontSize: '14px',
                             fontWeight: 400,
-                            margin: '0'
+                            margin: '0',
+                            color: THEME.text,
+                            textIndent: '20px',
+                            lineHeight: '25px',
+                            paddingBottom: '10px'
                         }}
                     >
                         {jobDescription} 
                     </p>
-                </a.div>
+                </a.div> 
+                </>
             }
         </a.div>
     )
