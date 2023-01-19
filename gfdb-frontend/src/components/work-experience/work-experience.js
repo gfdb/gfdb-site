@@ -1,4 +1,3 @@
-
 import { THEME } from '../../resources/theme'
 import arrowLeft from '../../resources/images/arrow-left.svg'
 import { useState, useEffect, useRef } from 'react'
@@ -233,54 +232,58 @@ const ExperienceCard = ({
                             </li>
                         ))}
                     </ul>
-                    <p
-                        style = {{
-                            fontSize: '14px',
-                            cursor: 'pointer',
-                            ...readMoreStyles
-                        }}
-                        onClick = {() => {
-                            setAnimateJobDesc(true)
-                            if (readMoreLess === 'More') {
-                                setReadMoreLess('Less')
-                            } else {
-                                setReadMoreLess('More')
-                            }
-                            setDroppedDownJobDesc(droppedDownJobDesc => !droppedDownJobDesc)
+                    { jobDescription &&
+                        <p
+                            style = {{
+                                fontSize: '14px',
+                                cursor: 'pointer',
+                                ...readMoreStyles
+                            }}
+                            onClick = {() => {
+                                setAnimateJobDesc(true)
+                                if (readMoreLess === 'More') {
+                                    setReadMoreLess('Less')
+                                } else {
+                                    setReadMoreLess('More')
+                                }
+                                setDroppedDownJobDesc(droppedDownJobDesc => !droppedDownJobDesc)
 
-                        }}
-                        onMouseEnter = {() => {
-                            setdisableParentDropDown(true)
-                            setReadMoreStyles(hoverStyles)
-                        }}
-                        onMouseLeave = {() => {
-                            setdisableParentDropDown(false)
-                            setReadMoreStyles({})
-                        }}
-                    >
-                        Read {readMoreLess}
-                    </p>   
+                            }}
+                            onMouseEnter = {() => {
+                                setdisableParentDropDown(true)
+                                setReadMoreStyles(hoverStyles)
+                            }}
+                            onMouseLeave = {() => {
+                                setdisableParentDropDown(false)
+                                setReadMoreStyles({})
+                            }}
+                        >
+                            Read {readMoreLess}
+                        </p> 
+                    }  
                 </a.div>
-                <a.div
-                    ref = {jobDescriptionRef}
-                    style = {{
-                        ...fadeInAnimationJobDesc
-                    }}
-                >
-                    <p
+                { jobDescription &&
+                    <a.div
+                        ref = {jobDescriptionRef}
                         style = {{
-                            fontSize: '14px',
-                            fontWeight: 400,
-                            margin: '0',
-                            color: THEME.text,
-                            textIndent: '20px',
-                            lineHeight: '25px',
-                            paddingBottom: '10px'
+                            ...fadeInAnimationJobDesc
                         }}
                     >
-                        {jobDescription} 
-                    </p>
-                </a.div> 
+                        <p
+                            style = {{
+                                fontSize: '14px',
+                                fontWeight: 400,
+                                margin: '0',
+                                color: THEME.text,
+                                textIndent: '20px',
+                                lineHeight: '25px',
+                                paddingBottom: '10px'
+                            }}
+                        >
+                            {jobDescription} 
+                        </p>
+                    </a.div> 
+                }
                 </>
             }
         </a.div>

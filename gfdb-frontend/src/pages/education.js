@@ -60,7 +60,7 @@ const Education = () => {
         'Advanced Program Design, C++',
         'Information Systems Security',
         'Data Communications and Computer Networks',
-        'Artificial Intelligence',
+        'Machine Learning',
         'Control Systems and Applications'
     ]
 
