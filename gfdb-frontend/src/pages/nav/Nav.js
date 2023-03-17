@@ -19,13 +19,28 @@ const NavList = ({
                 }}
             >
                 <li>
-                    <Link to = '/' onClick = {onClick}>Home</Link>
+                    <Link
+                        to = '/'
+                        onClick = {onClick}
+                    >
+                        <span id="nav-home">Home</span>
+                    </Link>
                 </li>
                 <li>
-                    <Link to = '/work-experience' onClick = {onClick}>Work Experience</Link>
+                    <Link 
+                        to = '/work-experience'
+                        onClick = {onClick}
+                    >
+                        <span id = "nav-work-exp">Work Experience</span>
+                    </Link>
                 </li>
                 <li>
-                    <Link to = '/education' onClick = {onClick}>Education</Link>
+                    <Link
+                        to = '/education'
+                        onClick = {onClick} 
+                    >
+                        <span id = "nav-education">Education</span>
+                    </Link>
                 </li>
                 {/* <li>
                     <Link to = '/projects' onClick = {onClick}>Projects</Link>
