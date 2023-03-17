@@ -36,15 +36,20 @@ const Home = () => {
 	const [display, setDisplay] = useState(false)
 
 	useEffect(() => {
+		let isMounted = true
 		Promise.all(SPRITES.map(url => loadImage(url))).then(
 			arrayOfImageObjects => {
 				let spriteArrayOfObjects = {}
 				arrayOfImageObjects.forEach((element) => {
 					spriteArrayOfObjects = {...spriteArrayOfObjects, ...element}
 				})
-				setLoadedSprites(spriteArrayOfObjects)
+				if (isMounted)
+					setLoadedSprites(spriteArrayOfObjects)
 			}
 		)
+		return () => {
+			isMounted = false
+		}
 	}, [])
 
 	useEffect(() => {
@@ -52,11 +57,12 @@ const Home = () => {
     	let timer = setInterval(() => {
 			sec = sec - 0.1
 			if (sec < 0) {
-				setDisplay(true)
+				if (loaded_sprites)
+					setDisplay(true)
 				clearInterval(timer)
-        }
-    }, 100)
-	}, [])
+			}
+		}, 100)
+	}, [loaded_sprites])
 
 
 	return (
