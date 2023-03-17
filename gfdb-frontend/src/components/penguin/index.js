@@ -6,10 +6,13 @@ import './penguin.scss'
 
 const STATIC_DENSITY = 15
 
-const SPRITE_PATH_RIGHT = '/penguin/right'
-const SPRITE_PATH_LEFT = '/penguin/left'
+const AFK_THRESHOLD = 20000
+const UP_VECTOR = Matter.Vector.create(0, -0.012)
+const DOWN_VECTOR = Matter.Vector.create(0, 0.012)
+const LEFT_VECTOR = Matter.Vector.create(-0.0005, 0)
+const RIGHT_VECTOR = Matter.Vector.create(0.0005, 0)
 
-const DEFAULT_SPRITE = '/penguin_walk01.png'
+
 
 const SLIDE_ANIMATION = [
 	'/penguin_slide01.png',
@@ -22,6 +25,10 @@ const JUMP_ANIMATION = [
 	'/penguin_jump03.png'
 ]
 
+const SPRITE_PATH_RIGHT = '/penguin/right'
+const SPRITE_PATH_LEFT = '/penguin/left'
+const DEFAULT_SPRITE = '/penguin_walk01.png'
+
 var loaded_sprites = preload_sprites([
 	SPRITE_PATH_LEFT + DEFAULT_SPRITE,
 	SPRITE_PATH_LEFT + SLIDE_ANIMATION[0],
@@ -29,7 +36,7 @@ var loaded_sprites = preload_sprites([
 	SPRITE_PATH_LEFT + JUMP_ANIMATION[0],
 	SPRITE_PATH_LEFT + JUMP_ANIMATION[1],
 	SPRITE_PATH_LEFT + JUMP_ANIMATION[2],
-
+	
 	SPRITE_PATH_RIGHT + DEFAULT_SPRITE,
 	SPRITE_PATH_RIGHT + SLIDE_ANIMATION[0],
 	SPRITE_PATH_RIGHT + SLIDE_ANIMATION[1],
@@ -45,157 +52,193 @@ export default function Penguin() {
 	const canvasRef = useRef(null)
 
 	const [constraints, setConstraints] = useState()
-	const [scene, setScene] = useState()
+	const [renderer, setRenderer] = useState()
 
-	const [character_movement, setCharacterMovement] = useState(true)
 	const [spawn_character, spawnCharacter] = useState(true)
-
-	// const [update_sprite, updateSprite] = useState(true)
-
 	const [movementStateArray, setMovementArray] = useState({movement_array: []})
 
-	const [update_sprite_flag, updateSpriteFlag] = useState(false)
-
-	const [lastMovementTime, setLastMovementTime] = useState(new Date())
+	let lastMovementTime = new Date()
 
 	const handleResize = () => {
 		setConstraints(boxRef.current.getBoundingClientRect())
 	}
 
+	const isAFK = (milliSecondsBeforeAFK) => {
+		let timeNow = new Date()
+		return ((timeNow.getTime() - lastMovementTime.getTime()) > milliSecondsBeforeAFK)
+	}
 
-	const moveCharacter = (vector) => {
+	const movePenguin = (vector) => {
+		if (!renderer) return
+
+		lastMovementTime = new Date()
+		const penguin = find_body_in_array('penguin', renderer.engine.world.bodies)
+
 		Matter.Body.applyForce(
-			scene.engine.world.bodies[3], // peguin body
-			scene.engine.world.bodies[3].position, // penguin pos
-			vector
+			penguin, // peguin body
+			penguin.position, // penguin pos
+			vector // vector of force to apply
 		)
 	}
 
-	useEffect(() => {
-		if (!spawn_character) {
-			const interval = setInterval(() => {
-				if (Array.isArray(movementStateArray.movement_array) 
-						&& movementStateArray.movement_array.length) {
-					setCharacterMovement(character_movement => !character_movement)
-				}
-				let timeNow = new Date()
-				if (timeNow.getTime() - lastMovementTime.getTime() > 20000) {
-					let randomInt = Math.round(Math.random()*10)
-					if (randomInt === 0 || randomInt === 9)
-						moveCharacter(Matter.Vector.create(0, -0.012))
-					else if (randomInt % 2 === 0)
-						moveCharacter(Matter.Vector.create(-0.004, 0))
-					else
-						moveCharacter(Matter.Vector.create(0.004, 0))
-					setLastMovementTime(new Date())
-						
+	const movePenguinInRandomDirection = () => {
+		const penguin = find_body_in_array('penguin', renderer.engine.world.bodies)
+		let randomInt = Math.round(Math.random()*10)
+		if (randomInt === 0 || randomInt === 9) 
+			movePenguin(UP_VECTOR)
+		else if (randomInt % 2 === 0) {
+			movePenguin(Matter.Vector.create(-0.002, 0))
+		} else {
+			movePenguin(Matter.Vector.create(0.002, 0))
+		}
+	}
 
-				}
+	const computeBodyVertices = (xPos, yPos, width, height) => {
+		return ([
+			{ x: xPos, y: yPos },
+			{ x: xPos + width, y: yPos},
+			{ x: xPos + width, y: yPos + height},
+			{ x: xPos, y: yPos + height},
+		])
+	}
 
-				
-				
-				// check to see if penguin is in bounds, if not 
-				// teleport him back in bounds on the opposite side of the screen
-				if (scene && constraints) {
-									
-					const penguin = scene.engine.world.bodies[3]
+	const isJumping = () => {
 
-					if (penguin !== undefined) {
+		const collisions = Matter.Query.collides(
+			find_body_in_array('penguin', renderer.engine.world.bodies),
+			[
+				find_body_in_array('homeBlock', renderer.engine.world.bodies),
+				find_body_in_array('workExpBlock', renderer.engine.world.bodies),
+				find_body_in_array('educationBlock', renderer.engine.world.bodies),
+				find_body_in_array('floor', renderer.engine.world.bodies)
+			]
+		)
 
-						if (penguin.position.x > constraints.width)
-						Matter.Body.setPosition(
-							penguin,
-							{x: 10, y: penguin.position.y}
-						)
-						if (penguin.position.x < 0)
-							Matter.Body.setPosition(
-								penguin,
-								{x: constraints.width, y: penguin.position.y}
-							)
+		if (collisions.length === 0)
+			return true
+		
+		for (let i = 0; i < collisions.length; i++) {
+			// if the penguin is touching any of the top edges of 
+			// any of the bodies it is colliding with, then it is
+			// not jumping
+			if (collisions[i].normal.x === 0 && collisions[i].normal.y === 1)
+				return false
+		}
 
-						let sprite_to_apply = undefined
-						let current_texture = trim_url_domain(penguin.render.sprite.texture)
+		return true
+	}
 
-						// penguin was moving left
-						if (penguin.velocity.x < 0 && penguin.velocity.x > -1)
-							sprite_to_apply = SPRITE_PATH_LEFT
-						// penguin was moving right
-						else if (penguin.velocity.x > 0 && penguin.velocity.x < 1)
-							sprite_to_apply = SPRITE_PATH_RIGHT
-						
-						if (sprite_to_apply !== undefined) {
-							switch (current_texture) {
-								case (sprite_to_apply + SLIDE_ANIMATION[1]):
-									sprite_to_apply += SLIDE_ANIMATION[0]
-									break
+	const updatePenguinSprite = () => {
 
-								case (sprite_to_apply + SLIDE_ANIMATION[0]):
-									sprite_to_apply += DEFAULT_SPRITE
-									break
+		const penguin = find_body_in_array('penguin', renderer.engine.world.bodies)
+		const floor = find_body_in_array('floor', renderer.engine.world.bodies)
 
-								default:
-									sprite_to_apply = current_texture
-							}
-						}
+		if (!penguin || !floor)
+			return
+		
 
-						if (sprite_to_apply !== undefined && 
-								penguin.render.sprite.texture !== sprite_to_apply) {
-							penguin.render.sprite.texture = loaded_sprites[sprite_to_apply]
-						}
-							
-					}
-				}
-			}, 35)
-			return () => clearInterval(interval)
+		let current_texture = trim_url_domain(penguin.render.sprite.texture)
+		let sprite_to_apply = undefined
+
+		// penguin moving right
+		if (penguin.velocity.x > 0) {
+			sprite_to_apply = SPRITE_PATH_RIGHT
+		// penguin moving left
+		} else if (penguin.velocity.x < 0) {
+			sprite_to_apply = SPRITE_PATH_LEFT
+		} else {
+			// not moving
+			return
 		}
 		
-	}, [spawn_character, lastMovementTime, lastMovementTime])
 
+		// if penguin is not jumping
+		if (!isJumping()) {
+			let absPenguinVelocityX = Math.abs(penguin.velocity.x)
+			// standing straight
+			if (1.3 < absPenguinVelocityX && absPenguinVelocityX < 1.45) {
+				sprite_to_apply += SLIDE_ANIMATION[0]
+			} else if (1.45 < absPenguinVelocityX) {
+				sprite_to_apply += SLIDE_ANIMATION[1]
+			} else {
+				sprite_to_apply += DEFAULT_SPRITE
+			}
+		} else { // penguin is jumping
+			let absPenguinVelocityY = Math.abs(penguin.velocity.y)
+			if (absPenguinVelocityY > 3) {
+				sprite_to_apply += JUMP_ANIMATION[0]
+			} else if (3 > absPenguinVelocityY && absPenguinVelocityY > 2) {
+				sprite_to_apply += JUMP_ANIMATION[1]
+			} else {
+				sprite_to_apply += JUMP_ANIMATION[2]
+			}
+		}
 
-	useEffect(() => {
-		if (update_sprite_flag && scene) {
+		// dont change texture if it's already that texture
+		if (current_texture === sprite_to_apply)
+			return
+		
+		penguin.render.sprite.texture = loaded_sprites[sprite_to_apply]
+	}
 
-			const penguin = scene.engine.world.bodies[3]
-			const floor = scene.engine.world.bodies[0]
-
-			let  current_texture = trim_url_domain(penguin.render.sprite.texture)
-			let sprite_to_apply = undefined
-
-			// penguin moving right
-			if (penguin.velocity.x > 1)
-				sprite_to_apply = SPRITE_PATH_RIGHT
-			// penguin moving left
-			else if (penguin.velocity.x < -1)
-				sprite_to_apply = SPRITE_PATH_LEFT
+	const updatePenguinMovement = () => {
+		if (!renderer) return
 			
-			if (sprite_to_apply !== undefined) {
-				// if penguin is not jumping
-				if (Matter.Collision.collides(penguin, floor) != null) {
-					switch(current_texture) {
-						case (sprite_to_apply + DEFAULT_SPRITE):
-							sprite_to_apply += SLIDE_ANIMATION[0]
-							break
-						case (sprite_to_apply + SLIDE_ANIMATION[0]):
-							sprite_to_apply += SLIDE_ANIMATION[1]
-							break
-						case (sprite_to_apply + SLIDE_ANIMATION[1]):
-							sprite_to_apply += SLIDE_ANIMATION[1]
-							break
-						default:
-							sprite_to_apply += DEFAULT_SPRITE
-					}
-				} else {
-					// TODO: add jump animation
-					sprite_to_apply = current_texture
+		const floor = find_body_in_array('floor', renderer.engine.world.bodies)
+		const penguin = find_body_in_array('penguin', renderer.engine.world.bodies)
+		
+		if(movementStateArray.movement_array.includes('right'))
+			movePenguin(RIGHT_VECTOR)
+
+		if(movementStateArray.movement_array.includes('left'))
+			movePenguin(LEFT_VECTOR)
+
+		if(movementStateArray.movement_array.includes('up'))
+			// check to make sure they are not already jumping
+			if (!isJumping())
+				movePenguin(UP_VECTOR)
+	}
+
+	
+	const mainGameLoop = () => {
+		if (Array.isArray(movementStateArray.movement_array) 
+			&& movementStateArray.movement_array.length) {
+			updatePenguinMovement()
+		}
+		updatePenguinSprite()
+
+		if (isAFK(AFK_THRESHOLD)) {
+			movePenguinInRandomDirection()
+		}
+
+		// check to see if penguin is in bounds, if not 
+		// teleport him back in bounds on the opposite side of the screen
+		if (renderer && constraints) {
+			const penguin = find_body_in_array('penguin', renderer.engine.world.bodies)
+
+			if (penguin !== undefined) {
+				if (penguin.position.x > constraints.width) {
+					Matter.Body.setPosition(
+						penguin,
+						{
+							x: 10,
+							y: penguin.position.y
+						}
+					)
+				}
+				if (penguin.position.x < 0) {
+					Matter.Body.setPosition(
+						penguin,
+						{
+							x: constraints.width, 
+							y: penguin.position.y
+						}
+					)
 				}
 			}
-			if (sprite_to_apply !== undefined 
-					&& current_texture !== sprite_to_apply) {
-				penguin.render.sprite.texture = loaded_sprites[sprite_to_apply]
-			}
-			updateSpriteFlag(false)
+
 		}
-	}, [update_sprite_flag])
+	}
 
 	const handleKeyDown = (e) => {
 
@@ -242,38 +285,11 @@ export default function Penguin() {
 		if (index > -1) {
 			temp_movement_array.splice(index, 1)
 			setMovementArray({ movement_array: temp_movement_array })
-			setLastMovementTime(new Date())
 		}
 	}
 
 	use_event('keydown', handleKeyDown)
 	use_event('keyup', handleKeyUp)
-
-
-	useEffect(() => {
-		if (scene) {
-			
-			let floor = scene.engine.world.bodies[0]
-			const penguin = scene.engine.world.bodies[3]
-			
-			if(movementStateArray.movement_array.includes('right')) {
-				moveCharacter(Matter.Vector.create(0.001, 0))
-			}
-
-			if(movementStateArray.movement_array.includes('left')) {
-				moveCharacter(Matter.Vector.create(-0.001, 0))
-			}
-
-			if(movementStateArray.movement_array.includes('up')) {
-				// check to make sure they are not already jumping
-				if (Matter.Collision.collides(penguin, floor) != null) {
-					moveCharacter(Matter.Vector.create(0, -0.012))
-				}
-			}
-			updateSpriteFlag(true)
-		}
-
-	}, [movementStateArray, character_movement])
 
 	useEffect(() => {
 		let Engine = Matter.Engine
@@ -296,6 +312,7 @@ export default function Penguin() {
 		const floor = Bodies.rectangle(0, 100, 0, 100, {
 			isStatic: true,
 			friction: 0,
+			label: 'floor',
 			render: {
 				fillStyle: '#272b33',
 			},
@@ -304,6 +321,7 @@ export default function Penguin() {
 		const wall_left = Bodies.rectangle(0, 100, 1, 10000, {
 			isStatic: true,
 			friction: 0,
+			label: 'wall_left',
 			render: {
 				fillStyle: '#272b33'
 			}
@@ -312,23 +330,57 @@ export default function Penguin() {
 		const wall_right = Bodies.rectangle(0, 100, 1, 10000, {
 			isStatic: true,
 			friction: 0,
+			label: 'wall_right',
 			render: {
 				fillStyle: '#272b33'
 			}
 		})
 
-		// const ceiling = Bodies.rectangle(0, 100, 0, 100, {
-		//   isStatic: true,
-		//   friction: 0,
-		//   render: {
-		//     fillStyle: '#272b33',
-		//   },
-		// })
+		const ceiling = Bodies.rectangle(0, 100, 0, 100, {
+		  isStatic: true,
+		  friction: 0,
+		  label: 'ceiling',
+		  render: {
+		    fillStyle: '#272b33',
+		  },
+		})
 
-		World.add(engine.world, [floor])
-		World.add(engine.world, [wall_left])
-		World.add(engine.world, [wall_right])
-		// World.add(engine.world, [ceiling])
+		const homeBlock = Bodies.rectangle(0, 0, 0, 0, {
+			isStatic: true,
+			friction: 0,
+			label: 'homeBlock',
+			render: {
+			  fillStyle: 'transparent',
+			},
+		})
+
+		const workExpBlock = Bodies.rectangle(0, 0, 0, 0, {
+			isStatic: true,
+			friction: 0,
+			label: 'workExpBlock',
+			render: {
+			  fillStyle: 'transparent',
+			},
+		})
+
+		const educationBlock = Bodies.rectangle(0, 0, 0, 0, {
+			isStatic: true,
+			friction: 0,
+			label: 'educationBlock',
+			render: {
+				fillStyle: 'transparent',
+			},
+		})
+
+		World.add(engine.world, [
+			floor,
+			wall_left,
+			wall_right,
+			ceiling,
+			homeBlock,
+			workExpBlock,
+			educationBlock
+		])
 		
 		engine.gravity.y = 0.5
 
@@ -336,40 +388,45 @@ export default function Penguin() {
 		Render.run(render)
 
 		setConstraints(boxRef.current.getBoundingClientRect())
-		setScene(render)
+		setRenderer(render)
 
 		window.addEventListener('resize', handleResize)
+
+
+		return () => {
+			window.removeEventListener('resize', handleResize)
+			if (renderer)
+				Matter.Events.off(renderer.engine, 'afterUpdate', mainGameLoop)
+		}
 
 		
 	}, [])
 
 	useEffect(() => {
-		return () => {
-			window.removeEventListener('resize', handleResize)
-		}
-	}, [])
 
-	useEffect(() => {
 		if (constraints) {
 			let { width, height } = constraints
 
 			// Dynamically update canvas and bounds
-			scene.bounds.max.x = width
-			scene.bounds.max.y = height
-			scene.options.width = width
-			scene.options.height = height
-			scene.canvas.width = width
-			scene.canvas.height = height
+			renderer.bounds.max.x = width
+			renderer.bounds.max.y = height
+			renderer.options.width = width
+			renderer.options.height = height
+			renderer.canvas.width = width
+			renderer.canvas.height = height
 
 			// Dynamically update floor
-			const floor = scene.engine.world.bodies[0]
+			const floor = renderer.engine.world.bodies[0]
 
-			const wall_left = scene.engine.world.bodies[1]
+			const wall_left = renderer.engine.world.bodies[1]
 
-			const wall_right = scene.engine.world.bodies[2]
+			const wall_right = renderer.engine.world.bodies[2]
 
-			// const ceiling = scene.engine.world.bodies[3]
+			const ceiling = find_body_in_array('ceiling', renderer.engine.world.bodies)
 
+			const homeBlock = find_body_in_array('homeBlock', renderer.engine.world.bodies)
+			const workExpBlock = find_body_in_array('workExpBlock', renderer.engine.world.bodies)
+			const educationBlock = find_body_in_array('educationBlock', renderer.engine.world.bodies)
 
 			Matter.Body.setPosition(floor, {
 				x: width / 2,
@@ -393,7 +450,70 @@ export default function Penguin() {
 				y: height + STATIC_DENSITY / 2
 			})
 
-			let penguin = find_body_in_array('penguin', scene.engine.world.bodies)
+			Matter.Body.setPosition(ceiling, {
+				x: width / 2,
+				y: -1,
+			})
+
+			Matter.Body.setVertices(ceiling, [
+				{ x: 0, y: -5 },
+				{ x: width*2, y: -5},
+				{ x: width*2, y: -1},
+				{ x: 0, y: -1},
+			])
+
+			const homeBlockElem = document.querySelector('#nav-home')
+			const homeRect = homeBlockElem.getBoundingClientRect()
+			Matter.Body.setPosition(homeBlock, {
+				x: homeRect.x + homeBlockElem.offsetWidth/2,
+				y: homeRect.y + homeBlockElem.offsetHeight/2,
+			})
+
+			Matter.Body.setVertices(
+				homeBlock, 
+				computeBodyVertices(
+					homeRect.x, 
+					homeRect.y, 
+					homeBlockElem.offsetWidth,
+					homeBlockElem.offsetHeight
+				)
+			)
+
+			const workExpBlockElem = document.querySelector('#nav-work-exp')
+			const workExpRect = workExpBlockElem.getBoundingClientRect()
+			Matter.Body.setPosition(workExpBlock, {
+				x: workExpRect.x + workExpBlockElem.offsetWidth/2,
+				y: workExpRect.y + workExpBlockElem.offsetHeight/2,
+			})
+
+			Matter.Body.setVertices(
+				workExpBlock,
+				computeBodyVertices(
+					workExpRect.x, 
+					workExpRect.y, 
+					workExpBlockElem.offsetWidth,
+					workExpBlockElem.offsetHeight
+				)
+			)
+
+			const educationBlockElem = document.querySelector('#nav-education')
+			const educationRect = educationBlockElem.getBoundingClientRect()
+			Matter.Body.setPosition(educationBlock, {
+				x: educationRect.x + educationBlockElem.offsetWidth/2,
+				y: educationRect.y + educationBlockElem.offsetHeight/2,
+			})
+
+			Matter.Body.setVertices(
+				educationBlock,
+				computeBodyVertices(
+					educationRect.x, 
+					educationRect.y, 
+					educationBlockElem.offsetWidth,
+					educationBlockElem.offsetHeight
+				)
+			)
+
+			let penguin = find_body_in_array('penguin', renderer.engine.world.bodies)
 			// spawn character into the game
 			if (spawn_character) {
 				spawnCharacter(false)
@@ -407,11 +527,18 @@ export default function Penguin() {
 
 			}	
 		}
-	}, [scene, constraints])
+
+		if (renderer) {
+			// unsubscribe
+			Matter.Events.off(renderer.engine, 'afterUpdate', mainGameLoop)
+			// resubscribe
+			Matter.Events.on(renderer.engine, 'afterUpdate', mainGameLoop)
+		}
+	}, [renderer, constraints])
 
 	useEffect(() => {
 		// Add character to the game
-		if (scene) {
+		if (renderer) {
 			let { width } = constraints
 			let randomX = Math.floor(Math.random() * -width) + width
 
@@ -425,10 +552,12 @@ export default function Penguin() {
 							yScale: 0.4
 						}
 					},
+					inertia: Infinity,
+					inertiaInverse: Infinity,
 					label: 'penguin'
 				}
 			)
-			Matter.World.add(scene.engine.world, penguin)
+			Matter.World.add(renderer.engine.world, penguin)
 		}
 	}, [spawn_character])
 
