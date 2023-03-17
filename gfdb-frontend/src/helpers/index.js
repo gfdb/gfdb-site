@@ -50,7 +50,6 @@ function preload_sprites(arr_sprite_urls, return_img_obj = false) {
 	   structure of {given_path:loaded_image_url}, optionally return_img_obj
 	   can be passed to return loaded image objects in place of the url
 	*/
-	console.log('loading sprites...')
 	let loaded_sprites = {}
 	if (return_img_obj)
 		arr_sprite_urls.forEach(sprite_url => {
@@ -62,6 +61,7 @@ function preload_sprites(arr_sprite_urls, return_img_obj = false) {
 }
 
 const find_body_in_array = (body_label, array) => {
+	// todo: optimize this lol
 	if (!array) return undefined
 	for (let i = 0; i < array.length; i++) {
 		if (body_label === array[i].label)
