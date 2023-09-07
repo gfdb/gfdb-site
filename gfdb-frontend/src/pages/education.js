@@ -16,10 +16,18 @@ const Education = () => {
         config: {mass: 1, tension: 150, friction: 30},
         ...animatedDivStyles
     })
+
     const animationOnRender1 = useSpring({
         opacity: 1,
         marginLeft: workExpWidth,
         from: {marginLeft: -2000, opacity: 0},
+        config: {mass: 1, tension: 150, friction: 30},
+        ...animatedDivStyles
+    })
+    const animationOnRender2 = useSpring({
+        opacity: 1,
+        marginLeft: workExpWidth,
+        from: {marginLeft: -3000, opacity: 0},
         config: {mass: 1, tension: 125, friction: 30},
         ...animatedDivStyles
     })
@@ -80,6 +88,18 @@ const Education = () => {
             <a.div style = {{...animationOnRender0, boxShadow: '24px 24px 24px rgba(0, 0, 0, 0.32)'}}>
                 <ExperienceCard 
                     companyName = {'Concordia University'}
+                    jobTitle = {'MCompSc - Computer Science'}
+                    companyLogo = {concordiaLogo}
+                    companyWebsite = {'https://www.concordia.ca/'}
+                    // jobDescription = {''}
+                    // jobBullets = {''}
+                    startDate = {new Date(2023, 8, 1)}
+                    endDate = {new Date(2025, 8, 1)}
+                />
+            </a.div>
+            <a.div style = {{...animationOnRender1, boxShadow: '24px 24px 24px rgba(0, 0, 0, 0.32)'}}>
+                <ExperienceCard 
+                    companyName = {'Concordia University'}
                     jobTitle = {'BE - Software Engineering'}
                     companyLogo = {concordiaLogo}
                     companyWebsite = {'https://www.concordia.ca/'}
@@ -89,7 +109,7 @@ const Education = () => {
                     endDate = {new Date(2023, 4, 4)}
                 />
             </a.div>
-            <a.div style = {{...animationOnRender1, boxShadow: '24px 24px 24px rgba(0, 0, 0, 0.32)'}} ref = {experienceCardRef}>
+            <a.div style = {{...animationOnRender2, boxShadow: '24px 24px 24px rgba(0, 0, 0, 0.32)'}} ref = {experienceCardRef}>
                 <ExperienceCard 
                     companyName = {'Lower Canada College'}
                     jobTitle = {'High School and Grade 12'}
