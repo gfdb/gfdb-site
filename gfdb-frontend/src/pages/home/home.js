@@ -33,41 +33,23 @@ const SPRITES = [
 const Home = () => {
 
 	const [loaded_sprites, setLoadedSprites] = useState()
-	const [display, setDisplay] = useState(false)
 
 	useEffect(() => {
-		let isMounted = true
 		Promise.all(SPRITES.map(url => loadImage(url))).then(
 			arrayOfImageObjects => {
 				let spriteArrayOfObjects = {}
 				arrayOfImageObjects.forEach((element) => {
 					spriteArrayOfObjects = {...spriteArrayOfObjects, ...element}
 				})
-				if (isMounted)
-					setLoadedSprites(spriteArrayOfObjects)
+				setLoadedSprites(spriteArrayOfObjects)
 			}
 		)
-		return () => {
-			isMounted = false
-		}
 	}, [])
-
-	useEffect(() => {
-		let sec = 2.3
-    	let timer = setInterval(() => {
-			sec = sec - 0.1
-			if (sec < 0) {
-				if (loaded_sprites)
-					setDisplay(true)
-				clearInterval(timer)
-			}
-		}, 100)
-	}, [loaded_sprites])
 
 
 	return (
 		<>
-			{ (loaded_sprites && display) ? 
+			{ (loaded_sprites) ? 
 			  <HomeComponent loaded_sprites = {loaded_sprites}/>
 			: <div style = {{
 					textAlign: 'center',
