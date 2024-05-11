@@ -240,6 +240,7 @@ const HomeComponent = ({loaded_sprites}) => {
 			let wall_left = renderState.engine.world.bodies[indexOfBodies.wall_left]
 			let wall_right = renderState.engine.world.bodies[indexOfBodies.wall_right]
 
+			
 			Body.setPosition(ceiling, {x: width / 2, y: -8})
 
 			Body.setVertices(ceiling, [
