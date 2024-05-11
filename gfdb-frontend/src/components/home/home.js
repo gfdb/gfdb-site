@@ -10,7 +10,7 @@ const MY_NAME = 'Gianfranco Dumoulin Bertucci'
 const LETTER_PATH = '/letters/'
 const BODY_LABELS = ['letter', 'linkedin', 'github']
 const GITHUB_URL = 'https://www.github.com/gfdb'
-const LINKEDIN_URL = 'https://www.linkedin.com/in/gianfrancodumoulinbertucci'
+const LINKEDIN_URL = 'https://www.linkedin.com/in/gfdb'
 
 const STATIC_DENSITY = 15
 
@@ -212,6 +212,7 @@ const HomeComponent = ({loaded_sprites}) => {
 		if (gravityToggle)
 			setGravityToggle(gravityToggle => !gravityToggle)
 		setCreateLetters(createLetters => !createLetters)
+		window.addEventListener('click', handleMouseClick)
 	}, [resetWorld])
 
 
@@ -239,7 +240,6 @@ const HomeComponent = ({loaded_sprites}) => {
 			let wall_left = renderState.engine.world.bodies[indexOfBodies.wall_left]
 			let wall_right = renderState.engine.world.bodies[indexOfBodies.wall_right]
 
-
 			Body.setPosition(ceiling, {x: width / 2, y: -8})
 
 			Body.setVertices(ceiling, [
@@ -248,13 +248,13 @@ const HomeComponent = ({loaded_sprites}) => {
 				{ x: width*2, y: STATIC_DENSITY },
 				{ x: 0, y: STATIC_DENSITY },
 			])
-	
+
 			// Dynamically update floor
 			Body.setPosition(floor, {
 				x: width / 2,
 				y: height,
 			})
-			
+
 			const floor_vertices = [
 				{ x: 0, y: height },
 				{ x: width*2, y: height},
