@@ -33,7 +33,6 @@ const SPRITES = [
 const Home = () => {
 
 	const [loaded_sprites, setLoadedSprites] = useState()
-	const [display, setDisplay] = useState(false)
 
 	useEffect(() => {
 		Promise.all(SPRITES.map(url => loadImage(url))).then(
@@ -47,21 +46,10 @@ const Home = () => {
 		)
 	}, [])
 
-	useEffect(() => {
-		let sec = 2.3
-    	let timer = setInterval(() => {
-			sec = sec - 0.1
-			if (sec < 0) {
-				setDisplay(true)
-				clearInterval(timer)
-        }
-    }, 100)
-	}, [])
-
 
 	return (
 		<>
-			{ (loaded_sprites && display) ? 
+			{ (loaded_sprites) ? 
 			  <HomeComponent loaded_sprites = {loaded_sprites}/>
 			: <div style = {{
 					textAlign: 'center',
