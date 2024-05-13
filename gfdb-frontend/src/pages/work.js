@@ -3,30 +3,39 @@ import competeLogo from '../resources/images/compete.svg'
 import haivisionLogo from '../resources/images/haivision.jpg'
 import { useSpring, animated as a } from 'react-spring'
 import { useEffect, useRef, useState } from 'react'
+import { useLocation } from 'react-router-dom'
 
 const WorkExperience = () => {
 
     const experienceCardRef = useRef(null)
     const [workExpWidth, setWorkExpWidth] = useState()
+    const location = useLocation()
+    let directionMultiplier = -1
+
+    if (sessionStorage.getItem('lastVisited') === '/')
+        directionMultiplier = -1
+    
+    if (sessionStorage.getItem('lastVisited') === '/education')
+        directionMultiplier = 1
 
     const animationOnRender0 = useSpring({
         opacity: 1,
         marginLeft: workExpWidth,
-        from: {marginLeft: -1000, opacity: 0},
+        from: {marginLeft: -1000 * directionMultiplier, opacity: 0},
         config: {mass: 1, tension: 150, friction: 30},
         ...animatedDivStyles
     })
     const animationOnRender1 = useSpring({
         opacity: 1,
         marginLeft: workExpWidth,
-        from: {marginLeft: -2000, opacity: 0},
+        from: {marginLeft: -2000 * directionMultiplier, opacity: 0},
         config: {mass: 1, tension: 125, friction: 30},
         ...animatedDivStyles
     })
     const animationOnRender2 = useSpring({
         opacity: 1,
         marginLeft: workExpWidth,
-        from: {marginLeft: -3000, opacity: 0},
+        from: {marginLeft: -3000 * directionMultiplier, opacity: 0},
         config: {mass: 1, tension: 100, friction: 25},
         ...animatedDivStyles
     })
@@ -46,6 +55,13 @@ const WorkExperience = () => {
 			window.removeEventListener('resize', handleResize)
 		}
 	}, [])
+
+    useEffect(() => {
+        return () => {
+            sessionStorage.setItem('lastVisited', location.pathname)
+        }
+    }, [location.pathname])
+
 
     const competeBullets1 = [
         'Created Tool Suite to automate parts of our testing process and improve testing efficiency.',

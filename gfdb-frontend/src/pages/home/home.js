@@ -1,9 +1,8 @@
 import { useEffect, useState } from 'react'
 import { loadImage } from '../../helpers'
 import HomeComponent from '../../components/home/home.js'
-// import loading from '../../resources/images/whiteG.gif'
 import loading from '../../resources/images/whiteG.gif'
-
+import { useLocation } from 'react-router-dom'
 
 const LETTER_PATH = '/letters/'
 const LOGO_PATH = '/logos/'
@@ -33,7 +32,14 @@ const SPRITES = [
 const Home = () => {
 
 	const [loaded_sprites, setLoadedSprites] = useState()
+	const location = useLocation()
 
+	useEffect(() => {
+        return () => {
+            sessionStorage.setItem('lastVisited', location.pathname)
+        }
+    }, [location.pathname])
+	
 	useEffect(() => {
 		Promise.all(SPRITES.map(url => loadImage(url))).then(
 			arrayOfImageObjects => {

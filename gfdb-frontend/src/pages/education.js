@@ -3,16 +3,24 @@ import lccLogo from '../resources/images/lcc.jpg'
 import concordiaLogo from '../resources/images/concordia.jpg'
 import { useSpring, animated as a } from 'react-spring'
 import { useEffect, useRef, useState } from 'react'
+import { useLocation } from 'react-router-dom'
 
 const Education = () => {
 
     const experienceCardRef = useRef(null)
     const [workExpWidth, setWorkExpWidth] = useState()
+    const location = useLocation()
+
+    useEffect(() => {
+        return () => {
+            sessionStorage.setItem('lastVisited', location.pathname)
+        }
+    }, [location.pathname])
 
     const animationOnRender0 = useSpring({
         opacity: 1,
         marginLeft: workExpWidth,
-        from: {marginLeft: -1000, opacity: 0},
+        from: {marginLeft: 1000, opacity: 0},
         config: {mass: 1, tension: 150, friction: 30},
         ...animatedDivStyles
     })
@@ -20,14 +28,14 @@ const Education = () => {
     const animationOnRender1 = useSpring({
         opacity: 1,
         marginLeft: workExpWidth,
-        from: {marginLeft: -2000, opacity: 0},
+        from: {marginLeft: 2000, opacity: 0},
         config: {mass: 1, tension: 150, friction: 30},
         ...animatedDivStyles
     })
     const animationOnRender2 = useSpring({
         opacity: 1,
         marginLeft: workExpWidth,
-        from: {marginLeft: -3000, opacity: 0},
+        from: {marginLeft: 3000, opacity: 0},
         config: {mass: 1, tension: 125, friction: 30},
         ...animatedDivStyles
     })
