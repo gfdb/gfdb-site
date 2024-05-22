@@ -57,6 +57,7 @@ export default function Penguin() {
 	const [spawn_character, spawnCharacter] = useState(true)
 	const [movementStateArray, setMovementArray] = useState({movement_array: []})
 
+	let velBufferX = 0
 	let lastMovementTime = new Date()
 
 	const handleResize = () => {
@@ -128,6 +129,11 @@ export default function Penguin() {
 		return true
 	}
 
+	const isMoving = () => {
+		let penguin = find_body_in_array('penguin', renderer.engine.world.bodies)
+		return penguin.velocity.x != 0 || penguin.velocity.y != 0
+	}
+
 	const updatePenguinSprite = () => {
 
 		const penguin = find_body_in_array('penguin', renderer.engine.world.bodies)
@@ -147,14 +153,20 @@ export default function Penguin() {
 		} else if (penguin.velocity.x < 0) {
 			sprite_to_apply = SPRITE_PATH_LEFT
 		} else {
-			// not moving
-			return
+			// horizontal vel is 0, check buffer for last 
+			// vel value to get direction to face
+			if (velBufferX > 0)
+				sprite_to_apply = SPRITE_PATH_RIGHT 
+			else
+				sprite_to_apply = SPRITE_PATH_LEFT
 		}
 		
 
+		let absPenguinVelocityY = Math.abs(penguin.velocity.y)
+		let absPenguinVelocityX = Math.abs(penguin.velocity.x)
+
 		// if penguin is not jumping
 		if (!isJumping()) {
-			let absPenguinVelocityX = Math.abs(penguin.velocity.x)
 			// standing straight
 			if (1.3 < absPenguinVelocityX && absPenguinVelocityX < 1.45) {
 				sprite_to_apply += SLIDE_ANIMATION[0]
@@ -163,8 +175,8 @@ export default function Penguin() {
 			} else {
 				sprite_to_apply += DEFAULT_SPRITE
 			}
-		} else { // penguin is jumping
-			let absPenguinVelocityY = Math.abs(penguin.velocity.y)
+		} else if (isJumping()) { 
+			// penguin is jumping
 			if (absPenguinVelocityY > 3) {
 				sprite_to_apply += JUMP_ANIMATION[0]
 			} else if (3 > absPenguinVelocityY && absPenguinVelocityY > 2) {
@@ -172,6 +184,9 @@ export default function Penguin() {
 			} else {
 				sprite_to_apply += JUMP_ANIMATION[2]
 			}
+		} else if (!isMoving()) {
+			// penguin is not moving at all
+			sprite_to_apply += DEFAULT_SPRITE
 		}
 
 		// dont change texture if it's already that texture
@@ -186,6 +201,10 @@ export default function Penguin() {
 			
 		const floor = find_body_in_array('floor', renderer.engine.world.bodies)
 		const penguin = find_body_in_array('penguin', renderer.engine.world.bodies)
+
+		if (penguin.velocity.x != 0) {
+			velBufferX = penguin.velocity.x
+		}
 		
 		if(movementStateArray.movement_array.includes('right'))
 			movePenguin(RIGHT_VECTOR)
